@@ -1,709 +1,819 @@
-
 <!DOCTYPE html>
 <html lang="ru" data-theme="light" data-lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
-  <title>Анти ИИ Пароли | Безопасный локальный генератор</title>
+  <title>Анти ИИ Пароли | 2026 Secure Generator</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <style>
-    /* ===== CSS-ПЕРЕМЕННЫЕ ДЛЯ ТЕМ ===== */
     :root {
-      --bg-body: #eef2f8; --bg-phone: #ffffff; --bg-card: #f8fafc; --bg-keyboard: #f1f5f9;
-      --bg-button: #3b82f6; --bg-button-hover: #1e40af; --bg-success: #10b981; --bg-danger: #ef4444;
-      --text-primary: #0f172a; --text-secondary: #334155; --text-muted: #64748b;
-      --border: #e2e8f0; --shadow: rgba(0,0,0,0.2);
-      --dot-bg: #1e293b; --dot-filled: #ef4444; --dot-selected: #fbbf24;
+      --bg-body: #eef2f8; --bg-matte: radial-gradient(circle at top left, #ffffff, #f4f7f9);
+      --glass-bg: rgba(255, 255, 255, 0.75); --glass-border: rgba(255, 255, 255, 0.9);
+      --glass-shadow: 0 15px 35px rgba(0,0,0,0.08), 0 5px 15px rgba(0,0,0,0.04);
+      --grad-primary: linear-gradient(135deg, #6366f1, #4f46e5);
+      --grad-success: linear-gradient(135deg, #10b981, #059669);
+      --grad-danger: linear-gradient(135deg, #f43f5e, #e11d48);
+      --grad-warn: linear-gradient(135deg, #f59e0b, #d97706);
+      --grad-purple: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      --text-main: #1e293b; --text-muted: #64748b;
+      --toast-bg: #1e293b; --toast-text: #ffffff;
     }
     [data-theme="dark"] {
-      --bg-body: #0f172a; --bg-phone: #1e293b; --bg-card: #334155; --bg-keyboard: #475569;
-      --bg-button: #60a5fa; --bg-button-hover: #3b82f6; --bg-success: #34d399; --bg-danger: #f87171;
-      --text-primary: #f1f5f9; --text-secondary: #cbd5e1; --text-muted: #94a3b8;
-      --border: #475569; --shadow: rgba(0,0,0,0.5);
-      --dot-bg: #64748b; --dot-filled: #f87171; --dot-selected: #fcd34d;
+      --bg-body: #0f172a; --bg-matte: radial-gradient(circle at top left, #1e293b, #0f172a);
+      --glass-bg: rgba(30, 41, 59, 0.85); --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-shadow: 0 15px 35px rgba(0,0,0,0.4); --text-main: #f8fafc; --text-muted: #94a3b8;
+      --toast-bg: #f8fafc; --toast-text: #0f172a;
     }
-
-    /* ===== БАЗОВЫЕ СТИЛИ ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: system-ui, -apple-system, 'Segoe UI', 'Inter', sans-serif; background: var(--bg-body); min-height: 100vh; display: flex; justify-content: center; align-items: center; transition: background 0.3s ease; }
-    .phone { width: 100%; max-width: 390px; height: 100vh; max-height: 844px; aspect-ratio: 9 / 19.5; background: var(--bg-phone); box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 25px 40px -12px var(--shadow); overflow: hidden; position: relative; border-radius: 44px; transition: background 0.3s ease; }
-    .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 20px; overflow-y: auto; transition: opacity 0.3s ease; opacity: 0; visibility: hidden; background: var(--bg-phone); }
-    .page.active { opacity: 1; visibility: visible; }
-
-    /* ===== ЗАСТАВКА ===== */
-    .loading-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-keyboard); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease; }
+    body { font-family: system-ui, -apple-system, 'Inter', sans-serif; background: var(--bg-body); min-height: 100vh; display: flex; justify-content: center; align-items: center; transition: background 0.4s ease; }
+    .phone { width: 100%; max-width: 390px; height: 100vh; max-height: 844px; aspect-ratio: 9/19.5; background: var(--bg-matte); box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 30px 60px rgba(0,0,0,0.15); overflow: hidden; position: relative; border-radius: 44px; transition: all 0.4s ease; }
+    .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 24px 20px; overflow-y: auto; opacity: 0; visibility: hidden; transform: translateY(10px); transition: opacity 0.4s ease, transform 0.4s ease; background: transparent; }
+    .page.active { opacity: 1; visibility: visible; transform: translateY(0); }
+    
+    /* ===== RTL ДЛЯ АРАБСКОГО ===== */
+    html[data-lang="ar"] { direction: rtl; }
+    html[data-lang="ar"] .top-bar { flex-direction: row-reverse; }
+    html[data-lang="ar"] .counter-row { flex-direction: row-reverse; }
+    html[data-lang="ar"] .steps li { flex-direction: row-reverse; }
+    
+    .loading-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-body); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.6s ease; }
     .loading-screen.hidden { opacity: 0; pointer-events: none; }
     .loading-image, .loading-video { width: 100%; height: 100%; object-fit: cover; }
     .loading-video { display: none; }
-    .sound-toggle { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.3); border: 2px solid rgba(0,0,0,0.3); border-radius: 50%; width: 56px; height: 56px; font-size: 28px; cursor: pointer; z-index: 10000; display: flex; align-items: center; justify-content: center; color: var(--text-primary); }
+    .sound-toggle { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; z-index: 10000; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .sound-toggle:active { transform: scale(0.9); }
-
-    /* ===== ЭЛЕМЕНТЫ ИНТЕРФЕЙСА ===== */
-    .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; position: relative; }
-    .back-btn, .theme-toggle { width: 40px; height: 40px; background: var(--bg-keyboard); border: none; border-radius: 30px; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-primary); transition: all 0.1s ease; box-shadow: 0 4px 8px var(--shadow); }
-    .back-btn:active, .theme-toggle:active { transform: scale(0.92); }
-    .center-logo { position: absolute; left: 50%; transform: translateX(-50%); width: 36px; height: 36px; background-image: url('favicon.ico'); background-size: contain; background-repeat: no-repeat; background-position: center; }
-    .placeholder { width: 40px; height: 40px; visibility: hidden; }
-    
-    .page1-content { height: 100%; display: flex; flex-direction: column; justify-content: center; text-align: center; padding: 0 20px; }
-    .big-logo { width: 72px; height: 72px; margin: 0 auto 20px; background-image: url('favicon.ico'); background-size: contain; background-repeat: no-repeat; background-position: center; }
-    h1 { font-size: 2rem; font-weight: 800; color: var(--text-primary); text-align: center; margin-bottom: 8px; }
-    .sub { font-size: 1rem; color: var(--text-secondary); margin-bottom: 24px; }
-    
-    .howto-btn, .next-btn, .create-pwd-btn, .save-pwd-btn, .copy-action-btn, .reset-action-btn { width: 100%; border: none; border-radius: 60px; font-weight: 800; cursor: pointer; transition: all 0.08s linear; color: #fff; }
-    .howto-btn, .next-btn, .create-pwd-btn { background: var(--bg-button); padding: 18px 0; font-size: 1.3rem; margin-top: 16px; box-shadow: 0 6px 0 var(--bg-button-hover); }
-    .howto-btn:active, .next-btn:active, .create-pwd-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 var(--bg-button-hover); }
-    .save-pwd-btn { background: var(--bg-keyboard); color: var(--text-primary); border: 1px solid var(--border); padding: 14px 0; font-size: 1rem; margin-top: 8px; box-shadow: 0 4px 0 var(--border); }
-    .save-pwd-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--border); }
-    .copy-action-btn { background: var(--bg-success); padding: 24px 0; font-size: 1.4rem; box-shadow: 0 6px 0 #059669; }
-    .copy-action-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #059669; }
-    .reset-action-btn { background: var(--bg-danger); padding: 24px 0; font-size: 1.4rem; box-shadow: 0 6px 0 #b91c1c; }
-    .reset-action-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #b91c1c; }
-    .action-buttons { display: flex; gap: 16px; margin: 20px 0 0; }
-    .action-buttons > button { flex: 1; }
-
-    /* ===== СЕЛЕКТОР ЯЗЫКА НА СТРАНИЦЕ 1 ===== */
-    .lang-selector-card {
-      background: var(--bg-card); border-radius: 20px; padding: 16px; margin: 16px auto 0;
-      max-width: 320px; border: 1px solid var(--border); box-shadow: 0 4px 12px var(--shadow);
-    }
-    .lang-selector-title { font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-align: center; }
+    .btn-glass { width: 100%; padding: 18px 24px; border: none; border-radius: 24px; font-size: 1.1rem; font-weight: 800; color: white; cursor: pointer; position: relative; overflow: hidden; transition: transform 0.1s, box-shadow 0.2s; box-shadow: 0 8px 0 rgba(0,0,0,0.15), 0 15px 20px rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .btn-glass::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent); pointer-events: none; }
+    .btn-glass:active { transform: translateY(6px); box-shadow: 0 2px 0 rgba(0,0,0,0.15), 0 5px 10px rgba(0,0,0,0.1); }
+    .btn-primary { background: var(--grad-primary); } .btn-success { background: var(--grad-success); } .btn-danger { background: var(--grad-danger); } .btn-warn { background: var(--grad-warn); } .btn-purple { background: var(--grad-purple); }
+    .btn-sm { padding: 12px 18px; font-size: 0.9rem; box-shadow: 0 4px 0 rgba(0,0,0,0.1), 0 8px 12px rgba(0,0,0,0.08); }
+    .btn-sm:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.1); }
+    .page1-content { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding-bottom: 40px; }
+    .logo-wrapper { width: 100px; height: 100px; margin-bottom: 24px; background: var(--glass-bg); backdrop-filter: blur(15px); border: 2px solid var(--glass-border); border-radius: 30px; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 30px rgba(99, 102, 241, 0.2); animation: float 6s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
+    .logo-img { width: 64px; height: 64px; background-image: url('favicon.ico'); background-size: contain; background-repeat: no-repeat; background-position: center; }
+    h1 { font-size: 2.2rem; font-weight: 900; color: var(--text-main); background: linear-gradient(135deg, #1e293b, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; letter-spacing: -1px; }
+    [data-theme="dark"] h1 { background: linear-gradient(135deg, #f8fafc, #818cf8); -webkit-background-clip: text; }
+    .sub { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 32px; font-weight: 500; }
+    .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 28px; padding: 20px; box-shadow: var(--glass-shadow); width: 100%; max-width: 340px; }
+    .section-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 16px; text-align: center; }
     .lang-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-    .lang-btn {
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      background: var(--bg-keyboard); border: 2px solid transparent; border-radius: 12px;
-      padding: 8px 4px; cursor: pointer; transition: all 0.15s ease; min-height: 56px;
+    .lang-btn { background: transparent; border: 2px solid transparent; border-radius: 14px; padding: 8px 0; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .lang-btn:hover { background: rgba(0,0,0,0.04); } .lang-btn.active { background: var(--glass-border); border-color: var(--grad-primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
+    .lang-flag { font-size: 1.5rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); } .lang-code { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); }
+    .lang-btn.active .lang-code { color: #4f46e5; }
+    .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .icon-btn { width: 44px; height: 44px; background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 16px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.2s; color: var(--text-main); }
+    .icon-btn:active { transform: scale(0.9); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .center-logo { width: 32px; height: 32px; background-image: url('favicon.ico'); background-size: contain; background-repeat: no-repeat; background-position: center; }
+    .placeholder { width: 44px; }
+    h2 { font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px; text-align: center; }
+    .info-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
+    .badge { display: inline-block; background: #e0e7ff; color: #4338ca; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin: 0 6px 8px 0; }
+    [data-theme="dark"] .badge { background: #312e81; color: #c7d2fe; }
+    .steps li { display: flex; gap: 14px; margin-bottom: 16px; font-size: 1.05rem; font-weight: 500; color: var(--text-main); line-height: 1.4; list-style: none; }
+    .step-num { width: 28px; height: 28px; background: var(--grad-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.85rem; font-weight: 800; flex-shrink: 0; box-shadow: 0 4px 8px rgba(79,70,229,0.3); }
+    .project-link { display: block; padding: 14px 0; text-decoration: none; color: var(--text-main); font-weight: 500; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 1rem; }
+    .project-link:active { color: #4f46e5; }
+    .counter-row { display: flex; justify-content: space-between; align-items: center; margin: 16px 0; font-weight: 600; color: var(--text-main); }
+    .dots-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 20px 0; }
+    .dot { width: 60px; height: 60px; background: #e2e8f0; border-radius: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; box-shadow: 0 6px 0 #cbd5e1, 0 10px 15px rgba(0,0,0,0.1); position: relative; }
+    [data-theme="dark"] .dot { background: #334155; box-shadow: 0 6px 0 #1e293b, 0 10px 15px rgba(0,0,0,0.3); }
+    .dot:active { transform: translateY(4px); box-shadow: 0 2px 0 #cbd5e1; }
+    .dot.filled { background: var(--grad-danger); color: white; box-shadow: 0 6px 0 #991b1b, 0 0 15px rgba(239,68,68,0.4); border-radius: 50%; }
+    [data-theme="dark"] .dot.filled { box-shadow: 0 6px 0 #7f1d1d, 0 0 15px rgba(239,68,68,0.4); }
+    .dot.selected { border: 2px solid #fbbf24; box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.3), 0 6px 0 #cbd5e1; }
+    .dot span { font-size: 1.6rem; font-weight: 800; font-family: monospace; transition: transform 0.2s; }
+    .dot.filled span { transform: scale(1.2); }
+    .mode-switch { display: flex; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 4px; margin-bottom: 16px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); }
+    .mode-opt { flex: 1; padding: 10px; text-align: center; font-size: 0.85rem; font-weight: 700; border-radius: 16px; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
+    .mode-opt.active { background: var(--grad-purple); color: white; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3); }
+    .keyboard { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 16px; margin: 16px 0; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+    .k-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+    .key { width: 42px; height: 42px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1.1rem; font-weight: 700; color: #1e293b; cursor: pointer; box-shadow: 0 4px 0 #cbd5e1; transition: all 0.1s; }
+    [data-theme="dark"] .key { background: #1e293b; border-color: #334155; color: #f1f5f9; box-shadow: 0 4px 0 #0f172a; }
+    .key:active { transform: translateY(4px); box-shadow: 0 0 0 #cbd5e1; }
+    .key-special { background: var(--grad-success); color: white; width: auto; padding: 0 16px; box-shadow: 0 4px 0 #047857; border: none; }
+    .key-special:active { transform: translateY(4px); box-shadow: 0 0 0 #047857; }
+    .password-window { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 28px; padding: 20px; margin: 20px 0; text-align: center; box-shadow: var(--glass-shadow); }
+    .ball { width: 50px; height: 50px; background: var(--grad-danger); color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800; font-family: monospace; cursor: grab; margin: 4px; box-shadow: 0 6px 15px rgba(239,68,68,0.4); animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes pop { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    .strength-bar { height: 6px; background: rgba(0,0,0,0.1); border-radius: 4px; margin-top: 12px; overflow: hidden; }
+    [data-theme="dark"] .strength-bar { background: rgba(255,255,255,0.2); }
+    .strength-fill { height: 100%; transition: all 0.3s; }
+    .weak { width: 33%; background: var(--grad-danger); } .good { width: 66%; background: var(--grad-warn); } .strong { width: 100%; background: var(--grad-success); }
+    .saved-list { margin-top: 12px; }
+    .saved-item { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-family: monospace; font-size: 0.9rem; color: var(--text-main); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .saved-actions { display: flex; gap: 6px; }
+    .act-btn { padding: 6px 10px; border: none; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 700; color: white; }
+    .act-copy { background: var(--grad-primary); } .act-del { background: var(--grad-danger); }
+    
+    /* ===== ТОСТЫ — ИСПРАВЛЕНЫ (БЕЛЫЙ ТЕКСТ НА ТЁМНОМ ФОНЕ) ===== */
+    .toast { 
+      position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px); 
+      background: var(--toast-bg); color: var(--toast-text); 
+      padding: 14px 28px; border-radius: 40px; font-weight: 600; font-size: 1rem;
+      z-index: 1000; opacity: 0; transition: all 0.3s; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2); pointer-events: none;
+      white-space: nowrap; text-align: center;
     }
-    .lang-btn:hover, .lang-btn.active { border-color: var(--bg-button); background: var(--bg-button); color: #fff; }
-    .lang-flag { font-size: 1.4rem; }
-    .lang-code { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
-    .lang-btn.active .lang-code { color: #fff; }
-
-    .instruction-card { background: var(--bg-card); border-radius: 28px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
-    .instruction-title { font-size: 1.6rem; font-weight: 800; color: var(--text-primary); margin-bottom: 20px; }
-    .feature-badge { display: inline-block; background: var(--bg-keyboard); padding: 8px 16px; border-radius: 30px; font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-right: 8px; margin-bottom: 10px; }
-    .instruction-list { list-style: none; }
-    .instruction-list li { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; font-size: 1.1rem; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
-    .instruction-list li .num { width: 32px; height: 32px; background: var(--bg-button); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 0.9rem; font-weight: 700; flex-shrink: 0; }
-    .important-text { font-size: 1.1rem; font-weight: 600; color: #f59e0b; line-height: 1.5; }
-
-    .support-title { text-align: center; font-size: 2rem; font-weight: 800; color: var(--text-primary); margin-bottom: 16px; }
-    .heart-icon { text-align: center; font-size: 3rem; margin: 20px 0; }
-    .support-text { text-align: center; font-size: 1.3rem; font-weight: 500; color: var(--text-primary); margin-bottom: 20px; line-height: 1.5; }
-    .phone-block { background: var(--bg-keyboard); border-radius: 28px; padding: 24px; text-align: center; margin: 24px 0; }
-    .phone-number { font-size: 1.6rem; font-weight: 800; color: var(--text-primary); margin-bottom: 16px; }
-    .copy-support-btn { background: var(--bg-button); border: none; padding: 14px 28px; border-radius: 40px; color: #fff; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
-    .copy-support-btn:active { transform: scale(0.96); }
-    .success-text { font-size: 1rem; color: var(--bg-success); margin-top: 16px; font-weight: 500; }
-    .heart-thanks { text-align: center; font-size: 2.5rem; margin: 24px 0; }
-    .project-link { display: block; padding: 12px 0; text-decoration: none; color: var(--text-primary); font-size: 1rem; font-weight: 500; border-bottom: 1px solid var(--border); }
-    .projects-title { font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin: 20px 0 12px; text-align: center; }
-
-    /* ===== КРУЖКИ ГЕНЕРАТОРА ===== */
-    .dots-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin: 20px 0; }
-    .dot { width: 64px; height: 64px; background: var(--dot-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; box-shadow: 0 8px 16px var(--shadow), inset 0 -2px 0 rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.1); position: relative; }
-    .dot:active { transform: scale(0.94); }
-    .dot.filled { background: var(--dot-filled); box-shadow: 0 0 15px rgba(239,68,68,0.6), 0 8px 16px var(--shadow), inset 0 -2px 0 rgba(0,0,0,0.2); }
-    .dot.selected { border: 3px solid var(--dot-selected); box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.4); animation: pulse 1s infinite; }
-    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(251, 191, 36, 0); } }
-    .dot span { font-size: 1.8rem; font-weight: 700; color: #fff; font-family: monospace; transition: color 0.2s; }
-    .dot:not(.filled) span { color: var(--text-muted); }
-    .dot::after { content: attr(data-hint); position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); background: var(--text-primary); color: var(--bg-phone); padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; }
-    .dot:hover::after { opacity: 1; }
-
-    /* ===== ОКНО ПАРОЛЯ И КЛАВИАТУРА ===== */
-    .password-window { background: var(--bg-card); border-radius: 36px; padding: 20px; margin: 20px 0; border: 2px solid var(--border); }
-    .password-title { font-size: 0.9rem; color: var(--text-muted); text-align: center; margin-bottom: 12px; }
-    .password-chars { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; min-height: 80px; }
-    .char-ball { width: 56px; height: 56px; background: var(--dot-filled); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: #fff; font-family: monospace; cursor: grab; box-shadow: 0 8px 16px var(--shadow), 0 0 12px rgba(239,68,68,0.5); transition: all 0.1s ease; animation: popIn 0.3s ease-out forwards; }
-    @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-    .char-ball:active { cursor: grabbing; transform: scale(0.95); }
-    .strength-bar { height: 6px; background: var(--bg-keyboard); border-radius: 3px; margin: 12px 0; overflow: hidden; }
-    .strength-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease, background 0.3s ease; }
-    .strength-fill.weak { width: 33%; background: var(--bg-danger); }
-    .strength-fill.good { width: 66%; background: #f59e0b; }
-    .strength-fill.strong { width: 100%; background: var(--bg-success); }
-
-    .virtual-keyboard { background: var(--bg-keyboard); border-radius: 28px; padding: 16px; margin: 16px 0; box-shadow: inset 0 1px 4px rgba(0,0,0,0.05), 0 4px 12px var(--shadow); }
-    .keyboard-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-    .key-btn { width: 48px; height: 48px; background: var(--bg-phone); border: none; border-radius: 16px; font-size: 1.2rem; font-weight: 700; color: var(--text-primary); cursor: pointer; box-shadow: 0 5px 0 var(--border), 0 2px 8px var(--shadow); transition: all 0.05s linear; }
-    .key-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--border); }
-    .key-btn.special { width: auto; padding: 0 20px; background: var(--bg-success); color: #fff; box-shadow: 0 5px 0 #059669; }
-    .key-btn.special:active { transform: translateY(3px); box-shadow: 0 2px 0 #059669; }
-
-    .add-btn-small { background: var(--bg-keyboard); border: 1px dashed var(--bg-success); padding: 10px 20px; border-radius: 40px; font-size: 0.9rem; font-weight: 600; color: var(--bg-success); cursor: pointer; box-shadow: 0 3px 0 var(--border); }
-    .add-btn-small:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--border); }
-    .counter-row { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; font-size: 1rem; color: var(--text-primary); }
-
-    .saved-passwords { margin-top: 20px; background: var(--bg-keyboard); border-radius: 24px; padding: 16px; }
-    .saved-passwords > div:first-child { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); }
-    .saved-item { background: var(--bg-phone); border-radius: 16px; padding: 12px; margin-bottom: 10px; font-family: monospace; font-size: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--text-primary); }
-    .saved-item span { word-break: break-all; flex: 1; }
-    .saved-btn { background: var(--bg-button); border: none; padding: 6px 12px; border-radius: 20px; color: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
-    .saved-btn.delete { background: var(--bg-danger); }
-    .saved-btn:active { transform: scale(0.95); }
-
-    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text-primary); padding: 12px 24px; border-radius: 60px; color: var(--bg-phone); font-weight: 500; transition: 0.2s; z-index: 200; white-space: nowrap; }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-
-    /* ===== ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ ===== */
-    .theme-toggle { position: relative; z-index: 10; }
-    .theme-toggle::after { content: '🌙'; }
-    [data-theme="dark"] .theme-toggle::after { content: '☀️'; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    
+    .theme-toggle::after { content: '🌙'; } [data-theme="dark"] .theme-toggle::after { content: '☀️'; }
   </style>
 </head>
 <body>
 <div class="phone">
-  <!-- ЗАСТАВКА -->
   <div class="loading-screen" id="loadingScreen">
     <button class="sound-toggle" id="soundBtn">🔇</button>
-    <img src="frame.jpg" alt="Заставка" class="loading-image" id="loadingImage">
+    <img src="frame.jpg" class="loading-image" id="loadingImage">
     <video src="cube.mp4" playsinline webkit-playsinline preload="auto" class="loading-video" id="loadingVideo"></video>
   </div>
 
-  <!-- СТРАНИЦА 1: СТАРТ + СЕЛЕКТОР ЯЗЫКА -->
   <div id="page1" class="page active">
     <div class="page1-content">
-      <div class="big-logo"></div>
-      <h1 data-i18n="app-title">🔐 Анти ИИ Пароли</h1>
-      <div class="sub" data-i18n="app-subtitle">Безопасный локальный генератор</div>
-      <button class="howto-btn" id="howToUseBtn" data-i18n="btn-howto">📖 Как пользоваться</button>
-      
-      <!-- СЕЛЕКТОР ЯЗЫКА -->
-      <div class="lang-selector-card">
-        <div class="lang-selector-title" data-i18n="select-language">Выберите язык</div>
+      <div class="logo-wrapper"><div class="logo-img"></div></div>
+      <h1 data-i18n="app-title">Анти ИИ Пароли</h1>
+      <div class="sub" data-i18n="app-subtitle">Надёжный. Локальный. 2026.</div>
+      <button class="btn-glass btn-primary" id="howToUseBtn" data-i18n="btn-howto">📖 Инструкция</button>
+      <div class="glass-card" style="margin-top: 24px;">
+        <div class="section-title" data-i18n="select-language">ЯЗЫК / LANGUAGE</div>
         <div class="lang-grid">
-          <button class="lang-btn active" data-lang="ru" aria-label="Русский"><span class="lang-flag">🇷🇺</span><span class="lang-code">RU</span></button>
-          <button class="lang-btn" data-lang="en" aria-label="English"><span class="lang-flag">🇬🇧</span><span class="lang-code">EN</span></button>
-          <button class="lang-btn" data-lang="es" aria-label="Español"><span class="lang-flag">🇪🇸</span><span class="lang-code">ES</span></button>
-          <button class="lang-btn" data-lang="de" aria-label="Deutsch"><span class="lang-flag">🇩🇪</span><span class="lang-code">DE</span></button>
-          <button class="lang-btn" data-lang="fr" aria-label="Français"><span class="lang-flag">🇫🇷</span><span class="lang-code">FR</span></button>
-          <button class="lang-btn" data-lang="zh" aria-label="中文"><span class="lang-flag">🇨🇳</span><span class="lang-code">ZH</span></button>
-          <button class="lang-btn" data-lang="ar" aria-label="العربية"><span class="lang-flag">🇸🇦</span><span class="lang-code">AR</span></button>
-          <button class="lang-btn" data-lang="pt" aria-label="Português"><span class="lang-flag">🇵🇹</span><span class="lang-code">PT</span></button>
-          <button class="lang-btn" data-lang="it" aria-label="Italiano"><span class="lang-flag">🇮🇹</span><span class="lang-code">IT</span></button>
-          <button class="lang-btn" data-lang="ja" aria-label="日本語"><span class="lang-flag">🇯🇵</span><span class="lang-code">JA</span></button>
+          <button class="lang-btn active" data-lang="ru"><span class="lang-flag">🇷🇺</span><span class="lang-code">RU</span></button>
+          <button class="lang-btn" data-lang="en"><span class="lang-flag">🇬🇧</span><span class="lang-code">EN</span></button>
+          <button class="lang-btn" data-lang="es"><span class="lang-flag">🇪🇸</span><span class="lang-code">ES</span></button>
+          <button class="lang-btn" data-lang="de"><span class="lang-flag">🇩🇪</span><span class="lang-code">DE</span></button>
+          <button class="lang-btn" data-lang="fr"><span class="lang-flag">🇫🇷</span><span class="lang-code">FR</span></button>
+          <button class="lang-btn" data-lang="zh"><span class="lang-flag">🇨🇳</span><span class="lang-code">ZH</span></button>
+          <button class="lang-btn" data-lang="ar"><span class="lang-flag">🇸🇦</span><span class="lang-code">AR</span></button>
+          <button class="lang-btn" data-lang="pt"><span class="lang-flag">🇵🇹</span><span class="lang-code">PT</span></button>
+          <button class="lang-btn" data-lang="it"><span class="lang-flag">🇮🇹</span><span class="lang-code">IT</span></button>
+          <button class="lang-btn" data-lang="ja"><span class="lang-flag">🇯🇵</span><span class="lang-code">JA</span></button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- СТРАНИЦА 2: ИНСТРУКЦИЯ -->
   <div id="page2" class="page">
     <div class="top-bar">
-      <button class="back-btn" id="backToPage1">←</button>
-      <button class="theme-toggle" id="themeToggle2" aria-label="Toggle theme"></button>
-      <div class="center-logo"></div>
-      <div class="placeholder"></div>
+      <button class="icon-btn" id="backToPage1">←</button>
+      <button class="icon-btn theme-toggle" id="themeToggle2"></button>
+      <div class="center-logo"></div><div class="placeholder"></div>
     </div>
-    <h2 style="font-size: 1.8rem; margin-bottom: 20px; color: var(--text-primary);" data-i18n="page2-title">⚡ ИНСТРУКЦИЯ</h2>
-    <div class="instruction-card">
-      <div class="instruction-title" data-i18n="security-title">🛡️ Принципы безопасности</div>
-      <div>
-        <span class="feature-badge" data-i18n="badge-no-leaks">🔒 0% утечек в сеть</span>
-        <span class="feature-badge" data-i18n="badge-aes">🧠 AES-256 шифрование</span>
-        <span class="feature-badge" data-i18n="badge-virtual-kb">⌨️ Виртуальная клавиатура</span>
-        <span class="feature-badge" data-i18n="badge-special">🔐 Спецсимволы @#$%</span>
-        <span class="feature-badge" data-i18n="badge-offline">📴 Работает офлайн</span>
+    <h2 data-i18n="page2-title">Инструкция</h2>
+    <div class="info-card">
+      <div class="section-title" data-i18n="security-title">Безопасность</div>
+      <div style="text-align: center;">
+        <span class="badge">🔒 0% Сети</span><span class="badge">🧠 AES-256</span><span class="badge">⌨️ Вирт. Клавиатура</span><span class="badge">🔐 @#$%</span><span class="badge">📴 Офлайн</span>
       </div>
     </div>
-    <div class="instruction-card">
-      <div class="instruction-title" data-i18n="howto-title">📖 Как создать пароль</div>
-      <ul class="instruction-list">
-        <li><span class="num">1</span> <span data-i18n="step1">Нажми на чёрный кружок → он станет красным</span></li>
-        <li><span class="num">2</span> <span data-i18n="step2">Выбери символ на клавиатуре (буквы, цифры, спецсимволы)</span></li>
-        <li><span class="num">3</span> <span data-i18n="step3">Повтори для нужного количества кружков (8–32)</span></li>
-        <li><span class="num">4</span> <span data-i18n="step4">Нажми «СОЗДАТЬ ПАРОЛЬ» → перетащи шары для уникальности</span></li>
-        <li><span class="num">5</span> <span data-i18n="step5">Скопируй или сохрани (пароли шифруются на устройстве)</span></li>
+    <div class="info-card">
+      <div class="section-title" data-i18n="howto-title">Шаги</div>
+      <ul class="steps">
+        <li><div class="step-num">1</div><span data-i18n="step1">Нажми кружок → Красный</span></li>
+        <li><div class="step-num">2</div><span data-i18n="step2">Выбери символ на клавиатуре</span></li>
+        <li><div class="step-num">3</div><span data-i18n="step3">Повтори 8–32 раза</span></li>
+        <li><div class="step-num">4</div><span data-i18n="step4">Создай пароль</span></li>
+        <li><div class="step-num">5</div><span data-i18n="step5">Скопируй или сохрани</span></li>
       </ul>
     </div>
-    <button class="next-btn" id="learnNextBtn" data-i18n="btn-next-support">➡️ ПОДДЕРЖАТЬ ПРОЕКТ</button>
+    <button class="btn-glass btn-primary" id="learnNextBtn" data-i18n="btn-next-support">➡️ Поддержать</button>
   </div>
 
-  <!-- СТРАНИЦА 3: ПОДДЕРЖКА -->
   <div id="page3" class="page">
     <div class="top-bar">
-      <button class="back-btn" id="backToPage2">←</button>
-      <button class="theme-toggle" id="themeToggle3" aria-label="Toggle theme"></button>
-      <div class="center-logo"></div>
-      <div class="placeholder"></div>
+      <button class="icon-btn" id="backToPage2">←</button>
+      <button class="icon-btn theme-toggle" id="themeToggle3"></button>
+      <div class="center-logo"></div><div class="placeholder"></div>
     </div>
-    <div class="support-title" data-i18n="support-title">🤝 ПОДДЕРЖАТЬ ПРОЕКТ</div>
-    <div class="heart-icon">💙</div>
-    <div class="support-text"><span data-i18n="support-text1">Проект бесплатный и будет таким всегда.</span><br><span data-i18n="support-text2">Добровольная поддержка помогает развивать безопасность и доступность.</span></div>
-    <div class="phone-block">
-      <div class="phone-number"><span data-i18n="phone-label">📱 ПЕРЕВОД ПО НОМЕРУ ТЕЛЕФОНА:</span><br>8-920-227-56-76</div>
-      <button class="copy-support-btn" id="copyPhoneBtn" data-i18n="btn-copy-phone">📋 Копировать номер</button>
-      <div class="success-text" data-i18n="copy-success">✅ Мгновенно. Без комиссии. Безопасно.</div>
+    <h2 data-i18n="support-title">Поддержка</h2>
+    <div class="info-card" style="text-align: center;">
+      <div class="section-title">💙</div>
+      <p data-i18n="support-text1" style="font-weight: 600; margin-bottom: 12px;">Бесплатно навсегда.</p>
+      <p data-i18n="support-text2" style="color: var(--text-muted);">Ваш вклад развивает проект.</p>
+      <div style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 20px 0; letter-spacing: 1px;">8-920-227-56-76</div>
+      <button class="btn-glass btn-success" id="copyPhoneBtn" data-i18n="btn-copy-phone">📋 Копировать номер</button>
     </div>
-    <div class="heart-thanks" data-i18n="thanks">❤️ Спасибо!</div>
-    <div class="projects-title" data-i18n="projects-title">🌟 ДРУГИЕ ПРОЕКТЫ</div>
-    <a href="https://anti-ai-shield.vercel.app/" class="project-link">🛡️ Защита от мошенников</a>
-    <a href="https://anti-bullying-app-one.vercel.app/" class="project-link">🏫 Защита от буллинга</a>
-    <a href="https://anti-ai-animals.vercel.app/" class="project-link">🐾 Животные поют</a>
-    <a href="https://anti-ai-stress.vercel.app/" class="project-link">🧘 Управление стрессом</a>
-    <a href="https://anti-ai-barcode.vercel.app/" class="project-link">📱 Проверка штрих-кодов</a>
-    <a href="https://anti-ai-cosmos.vercel.app/" class="project-link">✨ Анти ИИ Космос</a>
-    <a href="https://anti-ai-auto.vercel.app/" class="project-link">🚗 Анти ИИ Автомобиль</a>
-    <a href="https://anti-ai-memory.vercel.app/" class="project-link">🧠 Анти ИИ Память</a>
-    <a href="https://rutube.ru/channel/24404224/" class="project-link">✨ ВолшебствО</a>
-    <button class="next-btn" id="supportNextBtn" data-i18n="btn-next-generator">➡️ ГЕНЕРАТОР ПАРОЛЕЙ</button>
+    <div class="info-card">
+      <div class="section-title" data-i18n="projects-title">Другие проекты</div>
+      <a href="https://anti-ai-shield.vercel.app/" class="project-link">🛡️ Анти ИИ Щит</a>
+      <a href="https://anti-bullying-app-one.vercel.app/" class="project-link">🏫 Анти Буллинг</a>
+      <a href="https://anti-ai-auto.vercel.app/" class="project-link">🚗 Анти ИИ Авто</a>
+      <a href="https://anti-ai-memory.vercel.app/" class="project-link">🧠 Анти ИИ Память</a>
+      <a href="https://rutube.ru/channel/24404224/" class="project-link">✨ Волшебство</a>
+    </div>
+    <button class="btn-glass btn-purple" id="supportNextBtn" data-i18n="btn-next-generator">➡️ Генератор</button>
   </div>
 
-  <!-- СТРАНИЦА 4: ГЕНЕРАТОР -->
   <div id="page4" class="page">
     <div class="top-bar">
-      <button class="back-btn" id="backToPage3">←</button>
-      <button class="theme-toggle" id="themeToggle4" aria-label="Toggle theme"></button>
-      <div class="center-logo"></div>
-      <div class="placeholder"></div>
+      <button class="icon-btn" id="backToPage3">←</button>
+      <button class="icon-btn theme-toggle" id="themeToggle4"></button>
+      <div class="center-logo"></div><div class="placeholder"></div>
     </div>
-    <h2 style="font-size: 1.6rem; color: var(--text-primary);" data-i18n="gen-title">🔐 СОЗДАЙ ПАРОЛЬ</h2>
+    <h2 data-i18n="gen-title" style="margin-bottom: 12px;">Создать пароль</h2>
     <div class="counter-row">
-      <span><span data-i18n="gen-count">Кружков:</span> <span id="genCount">8</span>/32</span>
-      <div style="display:flex; gap:8px;">
-        <button class="add-btn-small" id="addGenBtn" data-i18n="btn-add">➕ Добавить</button>
-        <button class="add-btn-small" id="randomFillBtn" data-i18n="btn-random">🎲 Случайный</button>
+      <span data-i18n="gen-count">Кружков:</span> <span id="genCount">8</span>/32
+      <div style="display:flex; gap:6px;">
+        <button class="btn-glass btn-sm btn-success" id="addGenBtn" data-i18n="btn-add">+</button>
+        <button class="btn-glass btn-sm btn-warn" id="randomFillBtn" data-i18n="btn-random">🎲</button>
       </div>
     </div>
     <div id="generatorGrid" class="dots-grid"></div>
-    <div class="virtual-keyboard" id="virtualKeyboard">
-      <div class="keyboard-row" id="keyboardRow"></div>
-      <div class="keyboard-row">
-        <button class="key-btn special" data-key="clear" data-i18n="btn-clear">🗑️ Очистить</button>
-      </div>
+    <div class="mode-switch">
+      <div class="mode-opt active" data-mode="safe" data-i18n="mode-safe">🛡️ Банковские</div>
+      <div class="mode-opt" data-mode="full" data-i18n="mode-full">🔓 Все символы</div>
     </div>
-    <button class="create-pwd-btn" id="createPwdBtn" data-i18n="btn-create">🔐 СОЗДАТЬ ПАРОЛЬ</button>
-    <div class="password-window">
-      <div class="password-title" data-i18n="password-title">🔑 Пароль (перетаскивай шары)</div>
-      <div id="passwordCharsContainer" class="password-chars">
-        <div style="color: var(--text-muted); text-align: center; width: 100%;" data-i18n="password-placeholder">Нажми «Создать пароль»</div>
+    <div class="keyboard" id="virtualKeyboard">
+      <div class="k-row" id="keyboardRow"></div>
+      <div class="k-row"><button class="key key-special" id="clearAllBtn" data-i18n="btn-clear">🗑️</button></div>
+    </div>
+    <button class="btn-glass btn-primary" id="createPwdBtn" data-i18n="btn-create">🔐 Создать пароль</button>
+    
+    <div class="glass-card password-window">
+      <div class="section-title" data-i18n="password-title">Результат</div>
+      <div id="passwordCharsContainer" style="min-height: 60px; display:flex; justify-content:center; align-items:center; flex-wrap:wrap;">
+        <span style="color: var(--text-muted);" data-i18n="password-placeholder">Нажми кнопку выше</span>
       </div>
       <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
     </div>
-    <div class="saved-passwords" id="savedPasswordsPanel">
-      <div data-i18n="saved-title">📦 СОХРАНЁННЫЕ ПАРОЛИ</div>
-      <div id="savedList"></div>
-      <button class="save-pwd-btn" id="saveCurrentPwdBtn" data-i18n="btn-save">💾 Сохранить текущий</button>
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        <button class="save-pwd-btn" id="exportBtn" style="flex:1;" data-i18n="btn-export">📤 Экспорт</button>
-        <button class="save-pwd-btn" id="importBtn" style="flex:1;" data-i18n="btn-import">📥 Импорт</button>
+    
+    <div class="glass-card">
+      <div class="section-title" data-i18n="saved-title">📦 Сохранённые</div>
+      <div class="saved-list" id="savedList"></div>
+      <button class="btn-glass btn-success" id="saveCurrentPwdBtn" data-i18n="btn-save">💾 Сохранить</button>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="btn-glass btn-sm btn-primary" id="exportBtn" data-i18n="btn-export">📤</button>
+        <button class="btn-glass btn-sm btn-primary" id="importBtn" data-i18n="btn-import">📥</button>
       </div>
     </div>
-    <div class="action-buttons">
-      <button class="copy-action-btn" id="copyFinalBtn" data-i18n="btn-copy">📋 КОПИРОВАТЬ</button>
-      <button class="reset-action-btn" id="resetGenBtn" data-i18n="btn-reset">🔄 НАЧАТЬ ЗАНОВО</button>
+    
+    <div style="display:flex; gap:12px;">
+      <button class="btn-glass btn-success" id="copyFinalBtn" data-i18n="btn-copy">📋 Копировать</button>
+      <button class="btn-glass btn-danger" id="resetGenBtn" data-i18n="btn-reset">🔄</button>
     </div>
   </div>
 </div>
-
 <div class="toast" id="toastMsg"></div>
 
 <script>
-  /* ===== МНОГОЯЗЫЧНОСТЬ: 10 ЯЗЫКОВ ===== */
-  const translations = {
+document.addEventListener('DOMContentLoaded', () => {
+  // ===== ПОЛНЫЕ ПЕРЕВОДЫ (10 ЯЗЫКОВ) =====
+  const trs = {
     ru: {
-      'app-title': '🔐 Анти ИИ Пароли', 'app-subtitle': 'Безопасный локальный генератор', 'btn-howto': '📖 Как пользоваться', 'select-language': 'Выберите язык',
-      'page2-title': '⚡ ИНСТРУКЦИЯ', 'security-title': '🛡️ Принципы безопасности',
-      'badge-no-leaks': '🔒 0% утечек', 'badge-aes': '🧠 AES-256', 'badge-virtual-kb': '⌨️ Вирт. клавиатура', 'badge-special': '🔐 Спецсимволы', 'badge-offline': '📴 Офлайн',
-      'howto-title': '📖 Как создать пароль',
-      'step1': 'Нажми на кружок → он станет красным', 'step2': 'Выбери символ (буквы, цифры, @#$%)', 'step3': 'Повтори для 8–32 кружков', 'step4': 'Нажми «СОЗДАТЬ» → перетащи шары', 'step5': 'Скопируй или сохрани (шифрование)',
-      'btn-next-support': '➡️ ПОДДЕРЖАТЬ', 'support-title': '🤝 ПОДДЕРЖАТЬ ПРОЕКТ',
-      'support-text1': 'Проект бесплатный и будет таким всегда.', 'support-text2': 'Добровольная поддержка помогает развивать безопасность.',
-      'phone-label': '📱 ПЕРЕВОД ПО НОМЕРУ:', 'btn-copy-phone': '📋 Копировать', 'copy-success': '✅ Мгновенно. Без комиссии.', 'thanks': '❤️ Спасибо!',
-      'projects-title': '🌟 ДРУГИЕ ПРОЕКТЫ', 'btn-next-generator': '➡️ ГЕНЕРАТОР',
-      'gen-title': '🔐 СОЗДАЙ ПАРОЛЬ', 'gen-count': 'Кружков:', 'btn-add': '➕ Добавить', 'btn-random': '🎲 Случайный', 'btn-clear': '🗑️ Очистить',
-      'btn-create': '🔐 СОЗДАТЬ ПАРОЛЬ', 'password-title': '🔑 Пароль (перетаскивай)', 'password-placeholder': 'Нажми «Создать пароль»',
-      'saved-title': '📦 СОХРАНЁННЫЕ', 'btn-save': '💾 Сохранить', 'btn-export': '📤 Экспорт', 'btn-import': '📥 Импорт', 'btn-copy': '📋 КОПИРОВАТЬ', 'btn-reset': '🔄 СБРОС',
-      'toast-saved': '💾 Сохранён', 'toast-copied': '🔐 Скопировано', 'toast-cleared': '🧹 Буфер очищен', 'toast-random': '🎲 Заполнено случайно',
-      'toast-created': '✅ Готов', 'toast-reset': '🔄 Сброшено', 'toast-exported': '📤 Экспортировано', 'toast-imported': '📥 Импортировано',
-      'toast-deleted': '🗑️ Удалено', 'toast-error': '❌ Ошибка', 'toast-empty': '❌ Заполните кружок', 'toast-clipboard': '❌ Ошибка буфера',
-      'confirm-delete': 'Удалить пароль? Это нельзя отменить.', 'dot-hint': 'Нажми для ввода'
+      'app-title':'Анти ИИ Пароли','app-subtitle':'Надёжный. Локальный. 2026.','btn-howto':'📖 Инструкция','select-language':'ЯЗЫК',
+      'page2-title':'Инструкция','security-title':'Безопасность','howto-title':'Шаги',
+      'step1':'Нажми кружок → Красный','step2':'Выбери символ','step3':'Повтори 8–32 раза','step4':'Создай пароль','step5':'Скопируй',
+      'btn-next-support':'➡️ Поддержать','support-title':'Поддержка','support-text1':'Бесплатно навсегда.','support-text2':'Ваш вклад развивает проект.',
+      'btn-copy-phone':'📋 Копировать','projects-title':'Другие проекты','btn-next-generator':'➡️ Генератор',
+      'gen-title':'Создать пароль','gen-count':'Кружков:','btn-add':'+','btn-random':'🎲',
+      'mode-safe':'🛡️ Банковские','mode-full':'🔓 Все символы','btn-clear':'🗑️',
+      'btn-create':'🔐 Создать пароль','password-title':'Результат','password-placeholder':'Нажми кнопку',
+      'saved-title':'📦 Сохранённые','btn-save':'💾 Сохранить','btn-export':'📤','btn-import':'📥','btn-copy':'📋 Копировать','btn-reset':'🔄',
+      'toast-saved':'💾 Сохранено','toast-copied':'🔐 Скопировано','toast-cleared':'🧹 Буфер очищен','toast-random':'🎲 Заполнено',
+      'toast-created':'✅ Готов','toast-reset':'🔄 Сброшено','toast-exported':'📤 Экспорт','toast-imported':'📥 Импорт',
+      'toast-deleted':'🗑️ Удалено','toast-error':'❌ Ошибка','toast-empty':'❌ Заполните кружки','toast-clipboard':'❌ Ошибка буфера',
+      'confirm-delete':'Удалить? Это нельзя отменить.'
     },
     en: {
-      'app-title': '🔐 Anti AI Passwords', 'app-subtitle': 'Secure offline generator', 'btn-howto': '📖 How to use', 'select-language': 'Select language',
-      'page2-title': '⚡ INSTRUCTIONS', 'security-title': '🛡️ Security principles',
-      'badge-no-leaks': '🔒 0% network', 'badge-aes': '🧠 AES-256', 'badge-virtual-kb': '⌨️ Virtual KB', 'badge-special': '🔐 Special chars', 'badge-offline': '📴 Offline',
-      'howto-title': '📖 Create password',
-      'step1': 'Tap a dot → turns red', 'step2': 'Pick symbol (letters, digits, @#$%)', 'step3': 'Repeat for 8–32 dots', 'step4': 'Tap "CREATE" → drag balls', 'step5': 'Copy or save (encrypted)',
-      'btn-next-support': '➡️ SUPPORT', 'support-title': '🤝 SUPPORT PROJECT',
-      'support-text1': 'Free forever, no ads.', 'support-text2': 'Voluntary support helps improve security.',
-      'phone-label': '📱 DONATE VIA PHONE:', 'btn-copy-phone': '📋 Copy', 'copy-success': '✅ Instant. No fees.', 'thanks': '❤️ Thank you!',
-      'projects-title': '🌟 OTHER PROJECTS', 'btn-next-generator': '➡️ GENERATOR',
-      'gen-title': '🔐 CREATE PASSWORD', 'gen-count': 'Dots:', 'btn-add': '➕ Add', 'btn-random': '🎲 Random', 'btn-clear': '🗑️ Clear',
-      'btn-create': '🔐 CREATE', 'password-title': '🔑 Password (drag)', 'password-placeholder': 'Tap "Create"',
-      'saved-title': '📦 SAVED', 'btn-save': '💾 Save', 'btn-export': '📤 Export', 'btn-import': '📥 Import', 'btn-copy': '📋 COPY', 'btn-reset': '🔄 RESET',
-      'toast-saved': '💾 Saved', 'toast-copied': '🔐 Copied', 'toast-cleared': '🧹 Clipboard cleared', 'toast-random': '🎲 Random filled',
-      'toast-created': '✅ Ready', 'toast-reset': '🔄 Reset', 'toast-exported': '📤 Exported', 'toast-imported': '📥 Imported',
-      'toast-deleted': '🗑️ Deleted', 'toast-error': '❌ Error', 'toast-empty': '❌ Fill a dot', 'toast-clipboard': '❌ Clipboard error',
-      'confirm-delete': 'Delete password? Cannot be undone.', 'dot-hint': 'Tap to input'
+      'app-title':'Anti AI Passwords','app-subtitle':'Secure. Local. 2026.','btn-howto':'📖 Guide','select-language':'LANGUAGE',
+      'page2-title':'Instructions','security-title':'Security','howto-title':'Steps',
+      'step1':'Tap dot → Red','step2':'Pick symbol','step3':'Repeat 8–32 times','step4':'Create password','step5':'Copy',
+      'btn-next-support':'➡️ Support','support-title':'Support','support-text1':'Free forever.','support-text2':'Your donation helps.',
+      'btn-copy-phone':'📋 Copy','projects-title':'Projects','btn-next-generator':'➡️ Generator',
+      'gen-title':'Create Password','gen-count':'Dots:','btn-add':'+','btn-random':'🎲',
+      'mode-safe':'🛡️ Bank Safe','mode-full':'🔓 All Chars','btn-clear':'🗑️',
+      'btn-create':'🔐 Create','password-title':'Result','password-placeholder':'Tap button',
+      'saved-title':'📦 Saved','btn-save':'💾 Save','btn-export':'📤','btn-import':'📥','btn-copy':'📋 Copy','btn-reset':'🔄',
+      'toast-saved':'💾 Saved','toast-copied':'🔐 Copied','toast-cleared':'🧹 Clipboard cleared','toast-random':'🎲 Filled',
+      'toast-created':'✅ Ready','toast-reset':'🔄 Reset','toast-exported':'📤 Exported','toast-imported':'📥 Imported',
+      'toast-deleted':'🗑️ Deleted','toast-error':'❌ Error','toast-empty':'❌ Fill dots','toast-clipboard':'❌ Buffer error',
+      'confirm-delete':'Delete? Cannot be undone.'
     },
     es: {
-      'app-title': '🔐 Contraseñas Anti IA', 'app-subtitle': 'Generador seguro offline', 'btn-howto': '📖 Cómo usar', 'select-language': 'Seleccionar idioma',
-      'page2-title': '⚡ INSTRUCCIONES', 'security-title': '🛡️ Principios de seguridad',
-      'badge-no-leaks': '🔒 0% red', 'badge-aes': '🧠 AES-256', 'badge-virtual-kb': '⌨️ Teclado virtual', 'badge-special': '🔐 Símbolos @#$%', 'badge-offline': '📴 Offline',
-      'howto-title': '📖 Crear contraseña',
-      'step1': 'Toca un círculo → se pone rojo', 'step2': 'Elige símbolo (letras, números, @#$%)', 'step3': 'Repite para 8–32 círculos', 'step4': 'Toca "CREAR" → arrastra bolas', 'step5': 'Copia o guarda (encriptado)',
-      'btn-next-support': '➡️ APOYAR', 'support-title': '🤝 APOYAR PROYECTO',
-      'support-text1': 'Gratis para siempre, sin anuncios.', 'support-text2': 'El apoyo voluntario mejora la seguridad.',
-      'phone-label': '📱 DONAR POR TELÉFONO:', 'btn-copy-phone': '📋 Copiar', 'copy-success': '✅ Instantáneo. Sin comisiones.', 'thanks': '❤️ ¡Gracias!',
-      'projects-title': '🌟 OTROS PROYECTOS', 'btn-next-generator': '➡️ GENERADOR',
-      'gen-title': '🔐 CREAR CONTRASEÑA', 'gen-count': 'Círculos:', 'btn-add': '➕ Añadir', 'btn-random': '🎲 Aleatorio', 'btn-clear': '🗑️ Limpiar',
-      'btn-create': '🔐 CREAR', 'password-title': '🔑 Contraseña (arrastra)', 'password-placeholder': 'Toca "Crear"',
-      'saved-title': '📦 GUARDADAS', 'btn-save': '💾 Guardar', 'btn-export': '📤 Exportar', 'btn-import': '📥 Importar', 'btn-copy': '📋 COPIAR', 'btn-reset': '🔄 REINICIAR',
-      'toast-saved': '💾 Guardada', 'toast-copied': '🔐 Copiada', 'toast-cleared': '🧹 Portapapeles limpiado', 'toast-random': '🎲 Llenado aleatorio',
-      'toast-created': '✅ Lista', 'toast-reset': '🔄 Reiniciado', 'toast-exported': '📤 Exportado', 'toast-imported': '📥 Importado',
-      'toast-deleted': '🗑️ Eliminada', 'toast-error': '❌ Error', 'toast-empty': '❌ Llena un círculo', 'toast-clipboard': '❌ Error portapapeles',
-      'confirm-delete': '¿Eliminar contraseña? No se puede deshacer.', 'dot-hint': 'Toca para ingresar'
+      'app-title':'Contraseñas Anti IA','app-subtitle':'Seguro. Local. 2026.','btn-howto':'📖 Guía','select-language':'IDIOMA',
+      'page2-title':'Instrucciones','security-title':'Seguridad','howto-title':'Pasos',
+      'step1':'Toca punto → Rojo','step2':'Elige símbolo','step3':'Repite 8–32 veces','step4':'Crear','step5':'Copiar',
+      'btn-next-support':'➡️ Apoyar','support-title':'Apoyo','support-text1':'Gratis siempre.','support-text2':'Tu ayuda cuenta.',
+      'btn-copy-phone':'📋 Copiar','projects-title':'Proyectos','btn-next-generator':'➡️ Generador',
+      'gen-title':'Crear Contraseña','gen-count':'Puntos:','btn-add':'+','btn-random':'🎲',
+      'mode-safe':'🛡️ Seguro Banco','mode-full':'🔓 Todos','btn-clear':'🗑️',
+      'btn-create':'🔐 Crear','password-title':'Resultado','password-placeholder':'Toca botón',
+      'saved-title':'📦 Guardados','btn-save':'💾 Guardar','btn-export':'📤','btn-import':'📥','btn-copy':'📋 Copiar','btn-reset':'🔄',
+      'toast-saved':'💾 Guardado','toast-copied':'🔐 Copiado','toast-cleared':'🧹 Limpiado','toast-random':'🎲 Lleno',
+      'toast-created':'✅ Listo','toast-reset':'🔄 Reset','toast-exported':'📤 Exportado','toast-imported':'📥 Importado',
+      'toast-deleted':'🗑️ Borrado','toast-error':'❌ Error','toast-empty':'❌ Llena puntos','toast-clipboard':'❌ Error buffer',
+      'confirm-delete':'¿Borrar? Irreversible.'
     },
     de: {
-      'app-title': '🔐 Anti KI Passwörter', 'app-subtitle': 'Sicherer Offline-Generator', 'btn-howto': '📖 Anleitung', 'select-language': 'Sprache wählen',
-      'page2-title': '⚡ ANLEITUNG', 'security-title': '🛡️ Sicherheitsprinzipien',
-      'badge-no-leaks': '🔒 0% Netzwerk', 'badge-aes': '🧠 AES-256', 'badge-virtual-kb': '⌨️ Virtuelle TB', 'badge-special': '🔐 Sonderzeichen', 'badge-offline': '📴 Offline',
-      'howto-title': '📖 Passwort erstellen',
-      'step1': 'Kreis antippen → wird rot', 'step2': 'Symbol wählen (Buchstaben, Zahlen, @#$%)', 'step3': 'Für 8–32 Kreise wiederholen', 'step4': '"ERSTELLEN" → Kugeln ziehen', 'step5': 'Kopieren oder speichern (verschlüsselt)',
-      'btn-next-support': '➡️ UNTERSTÜTZEN', 'support-title': '🤝 PROJEKT UNTERSTÜTZEN',
-      'support-text1': 'Kostenlos für immer, ohne Werbung.', 'support-text2': 'Freiwillige Unterstützung verbessert die Sicherheit.',
-      'phone-label': '📱 SPENDEN PER TELEFON:', 'btn-copy-phone': '📋 Kopieren', 'copy-success': '✅ Sofort. Keine Gebühren.', 'thanks': '❤️ Danke!',
-      'projects-title': '🌟 ANDERE PROJEKTE', 'btn-next-generator': '➡️ GENERATOR',
-      'gen-title': '🔐 PASSWORT ERSTELLEN', 'gen-count': 'Kreise:', 'btn-add': '➕ Hinzufügen', 'btn-random': '🎲 Zufällig', 'btn-clear': '🗑️ Löschen',
-      'btn-create': '🔐 ERSTELLEN', 'password-title': '🔑 Passwort (ziehen)', 'password-placeholder': '"Erstellen" tippen',
-      'saved-title': '📦 GESPEICHERT', 'btn-save': '💾 Speichern', 'btn-export': '📤 Export', 'btn-import': '📥 Import', 'btn-copy': '📋 KOPIEREN', 'btn-reset': '🔄 ZURÜCKSETZEN',
-      'toast-saved': '💾 Gespeichert', 'toast-copied': '🔐 Kopiert', 'toast-cleared': '🧹 Zwischenablage geleert', 'toast-random': '🎲 Zufällig gefüllt',
-      'toast-created': '✅ Fertig', 'toast-reset': '🔄 Zurückgesetzt', 'toast-exported': '📤 Exportiert', 'toast-imported': '📥 Importiert',
-      'toast-deleted': '🗑️ Gelöscht', 'toast-error': '❌ Fehler', 'toast-empty': '❌ Kreis füllen', 'toast-clipboard': '❌ Zwischenablage-Fehler',
-      'confirm-delete': 'Passwort löschen? Kann nicht rückgängig gemacht werden.', 'dot-hint': 'Tippen zum Eingeben'
+      'app-title':'Anti KI Passwörter','app-subtitle':'Sicher. Lokal. 2026.','btn-howto':'📖 Anleitung','select-language':'SPRACHE',
+      'page2-title':'Anleitung','security-title':'Sicherheit','howto-title':'Schritte',
+      'step1':'Kreis tippen → Rot','step2':'Symbol wählen','step3':'8–32 mal','step4':'Erstellen','step5':'Kopieren',
+      'btn-next-support':'➡️ Spenden','support-title':'Spende','support-text1':'Für immer gratis.','support-text2':'Danke für Hilfe.',
+      'btn-copy-phone':'📋 Kopieren','projects-title':'Projekte','btn-next-generator':'➡️ Generator',
+      'gen-title':'Passwort erstellen','gen-count':'Kreise:','btn-add':'+','btn-random':'🎲',
+      'mode-safe':'🛡️ Banken','mode-full':'🔓 Alle','btn-clear':'🗑️',
+      'btn-create':'🔐 Erstellen','password-title':'Ergebnis','password-placeholder':'Button drücken',
+      'saved-title':'📦 Gespeichert','btn-save':'💾 Speichern','btn-export':'📤','btn-import':'📥','btn-copy':'📋 Kopieren','btn-reset':'🔄',
+      'toast-saved':'💾 Gespeichert','toast-copied':'🔐 Kopiert','toast-cleared':'🧹 Geleert','toast-random':'🎲 Gefüllt',
+      'toast-created':'✅ Fertig','toast-reset':'🔄 Reset','toast-exported':'📤 Exportiert','toast-imported':'📥 Importiert',
+      'toast-deleted':'🗑️ Gelöscht','toast-error':'❌ Fehler','toast-empty':'❌ Kreise füllen','toast-clipboard':'❌ Fehler',
+      'confirm-delete':'Löschen? Unwiderruflich.'
     },
     fr: {
-      'app-title': '🔐 Mots de passe Anti IA', 'app-subtitle': 'Générateur sécurisé hors ligne', 'btn-howto': '📖 Comment utiliser', 'select-language': 'Choisir langue',
-      'page2-title': '⚡ INSTRUCTIONS', 'security-title': '🛡️ Principes de sécurité',
-      'badge-no-leaks': '🔒 0% réseau', 'badge-aes': '🧠 AES-256', 'badge-virtual-kb': '⌨️ Clavier virtuel', 'badge-special': '🔐 Caractères spéciaux', 'badge-offline': '📴 Hors ligne',
-      'howto-title': '📖 Créer mot de passe',
-      'step1': 'Appuyer sur un point → devient rouge', 'step2': 'Choisir symbole (lettres, chiffres, @#$%)', 'step3': 'Répéter pour 8–32 points', 'step4': '"CRÉER" → glisser les boules', 'step5': 'Copier ou sauver (chiffré)',
-      'btn-next-support': '➡️ SOUTENIR', 'support-title': '🤝 SOUTENIR LE PROJET',
-      'support-text1': 'Gratuit pour toujours, sans pubs.', 'support-text2': 'Le soutien volontaire améliore la sécurité.',
-      'phone-label': '📱 DON PAR TÉLÉPHONE:', 'btn-copy-phone': '📋 Copier', 'copy-success': '✅ Instantané. Sans frais.', 'thanks': '❤️ Merci!',
-      'projects-title': '🌟 AUTRES PROJETS', 'btn-next-generator': '➡️ GÉNÉRATEUR',
-      'gen-title': '🔐 CRÉER MOT DE PASSE', 'gen-count': 'Points:', 'btn-add': '➕ Ajouter', 'btn-random': '🎲 Aléatoire', 'btn-clear': '🗑️ Effacer',
-      'btn-create': '🔐 CRÉER', 'password-title': '🔑 Mot de passe (glisser)', 'password-placeholder': 'Appuyer "Créer"',
-      'saved-title': '📦 SAUVEGARDÉS', 'btn-save': '💾 Sauver', 'btn-export': '📤 Exporter', 'btn-import': '📥 Importer', 'btn-copy': '📋 COPIER', 'btn-reset': '🔄 RÉINITIALISER',
-      'toast-saved': '💾 Sauvé', 'toast-copied': '🔐 Copié', 'toast-cleared': '🧹 Presse-papiers vidé', 'toast-random': '🎲 Rempli aléatoirement',
-      'toast-created': '✅ Prêt', 'toast-reset': '🔄 Réinitialisé', 'toast-exported': '📤 Exporté', 'toast-imported': '📥 Importé',
-      'toast-deleted': '🗑️ Supprimé', 'toast-error': '❌ Erreur', 'toast-empty': '❌ Remplir un point', 'toast-clipboard': '❌ Erreur presse-papiers',
-      'confirm-delete': 'Supprimer mot de passe? Action irréversible.', 'dot-hint': 'Appuyer pour saisir'
+      'app-title':'Mots de passe Anti IA','app-subtitle':'Sûr. Local. 2026.','btn-howto':'📖 Guide','select-language':'LANGUE',
+      'page2-title':'Guide','security-title':'Sécurité','howto-title':'Étapes',
+      'step1':'Touchez point → Rouge','step2':'Choisissez','step3':'8–32 fois','step4':'Créer','step5':'Copier',
+      'btn-next-support':'➡️ Soutien','support-title':'Soutien','support-text1':'Gratuit.','support-text2':'Merci.',
+      'btn-copy-phone':'📋 Copier','projects-title':'Projets','btn-next-generator':'➡️ Générateur',
+      'gen-title':'Créer Mot de passe','gen-count':'Points:','btn-add':'+','btn-random':'🎲',
+      'mode-safe':'🛡️ Banque','mode-full':'🔓 Tout','btn-clear':'🗑️',
+      'btn-create':'🔐 Créer','password-title':'Résultat','password-placeholder':'Appuyez',
+      'saved-title':'📦 Sauvé','btn-save':'💾 Sauver','btn-export':'📤','btn-import':'📥','btn-copy':'📋 Copier','btn-reset':'🔄',
+      'toast-saved':'💾 Sauvé','toast-copied':'🔐 Copié','toast-cleared':'🧹 Vide','toast-random':'🎲 Plein',
+      'toast-created':'✅ Prêt','toast-reset':'🔄 Reset','toast-exported':'📤 Exporté','toast-imported':'📥 Importé',
+      'toast-deleted':'🗑️ Effacé','toast-error':'❌ Erreur','toast-empty':'❌ Remplissez','toast-clipboard':'❌ Erreur',
+      'confirm-delete':'Supprimer? Irréversible.'
     },
     zh: {
-      'app-title': '🔐 反人工智能密码', 'app-subtitle': '安全离线生成器', 'btn-howto': '📖 使用方法', 'select-language': '选择语言',
-      'page2-title': '⚡ 使用说明', 'security-title': '🛡️ 安全原则',
-      'badge-no-leaks': '🔒 零网络传输', 'badge-aes': '🧠 AES-256加密', 'badge-virtual-kb': '⌨️ 虚拟键盘', 'badge-special': '🔐 特殊符号', 'badge-offline': '📴 离线工作',
-      'howto-title': '📖 创建密码',
-      'step1': '点击圆点 → 变红', 'step2': '选择符号（字母、数字、@#$%）', 'step3': '重复8-32个圆点', 'step4': '点击"创建" → 拖拽球体', 'step5': '复制或保存（加密存储）',
-      'btn-next-support': '➡️ 支持项目', 'support-title': '🤝 支持项目',
-      'support-text1': '永久免费，无广告。', 'support-text2': '自愿支持有助于提升安全性。',
-      'phone-label': '📱 电话捐赠：', 'btn-copy-phone': '📋 复制号码', 'copy-success': '✅ 即时到账，无手续费。', 'thanks': '❤️ 谢谢！',
-      'projects-title': '🌟 其他项目', 'btn-next-generator': '➡️ 密码生成器',
-      'gen-title': '🔐 创建密码', 'gen-count': '圆点：', 'btn-add': '➕ 添加', 'btn-random': '🎲 随机', 'btn-clear': '🗑️ 清除',
-      'btn-create': '🔐 创建密码', 'password-title': '🔑 密码（可拖拽）', 'password-placeholder': '点击"创建密码"',
-      'saved-title': '📦 已保存密码', 'btn-save': '💾 保存', 'btn-export': '📤 导出', 'btn-import': '📥 导入', 'btn-copy': '📋 复制', 'btn-reset': '🔄 重置',
-      'toast-saved': '💾 已保存', 'toast-copied': '🔐 已复制', 'toast-cleared': '🧹 剪贴板已清空', 'toast-random': '🎲 随机填充',
-      'toast-created': '✅ 准备就绪', 'toast-reset': '🔄 已重置', 'toast-exported': '📤 已导出', 'toast-imported': '📥 已导入',
-      'toast-deleted': '🗑️ 已删除', 'toast-error': '❌ 错误', 'toast-empty': '❌ 请填充圆点', 'toast-clipboard': '❌ 剪贴板错误',
-      'confirm-delete': '删除密码？此操作无法撤销。', 'dot-hint': '点击输入'
+      'app-title':'反AI密码','app-subtitle':'安全. 本地. 2026.','btn-howto':'📖 指南','select-language':'语言',
+      'page2-title':'说明','security-title':'安全','howto-title':'步骤',
+      'step1':'点击圆点 → 变红','step2':'选择符号','step3':'重复8-32次','step4':'创建','step5':'复制',
+      'btn-next-support':'➡️ 支持','support-title':'支持项目','support-text1':'永远免费.','support-text2':'感谢帮助.',
+      'btn-copy-phone':'📋 复制','projects-title':'其他项目','btn-next-generator':'➡️ 生成器',
+      'gen-title':'创建密码','gen-count':'圆点:','btn-add':'+','btn-random':'🎲',
+      'mode-safe':'🛡️ 银行安全','mode-full':'🔓 所有','btn-clear':'🗑️',
+      'btn-create':'🔐 创建','password-title':'结果','password-placeholder':'点击上方按钮',
+      'saved-title':'📦 已保存','btn-save':'💾 保存','btn-export':'📤','btn-import':'📥','btn-copy':'📋 复制','btn-reset':'🔄',
+      'toast-saved':'💾 已保存','toast-copied':'🔐 已复制','toast-cleared':'🧹 已清除','toast-random':'🎲 已填充',
+      'toast-created':'✅ 完成','toast-reset':'🔄 重置','toast-exported':'📤 导出','toast-imported':'📥 导入',
+      'toast-deleted':'🗑️ 已删除','toast-error':'❌ 错误','toast-empty':'❌ 填充圆点','toast-clipboard':'❌ 错误',
+      'confirm-delete':'删除? 无法撤销.'
     },
     ar: {
-      'app-title': '🔐 كلمات مرور مضادة للذكاء الاصطناعي', 'app-subtitle': 'مولد آمن بدون إنترنت', 'btn-howto': '📖 طريقة الاستخدام', 'select-language': 'اختر اللغة',
-      'page2-title': '⚡ التعليمات', 'security-title': '🛡️ مبادئ الأمان',
-      'badge-no-leaks': '🔒 0% شبكة', 'badge-aes': '🧠 تشفير AES-256', 'badge-virtual-kb': '⌨️ لوحة مفاتيح افتراضية', 'badge-special': '🔐 رموز خاصة', 'badge-offline': '📴 بدون إنترنت',
-      'howto-title': '📖 إنشاء كلمة مرور',
-      'step1': 'اضغط على دائرة → تتحول لأحمر', 'step2': 'اختر رمز (أحرف، أرقام، @#$%)', 'step3': 'كرر لـ 8–32 دائرة', 'step4': 'اضغط "إنشاء" → اسحب الكرات', 'step5': 'انسخ أو احفظ (مشفّر)',
-      'btn-next-support': '➡️ دعم المشروع', 'support-title': '🤝 دعم المشروع',
-      'support-text1': 'مجاني للأبد، بدون إعلانات.', 'support-text2': 'الدعم التطوعي يحسّن الأمان.',
-      'phone-label': '📱 التبرع عبر الهاتف:', 'btn-copy-phone': '📋 نسخ', 'copy-success': '✅ فوري. بدون عمولة.', 'thanks': '❤️ شكرًا!',
-      'projects-title': '🌟 مشاريع أخرى', 'btn-next-generator': '➡️ مولد الكلمات',
-      'gen-title': '🔐 إنشاء كلمة مرور', 'gen-count': 'دوائر:', 'btn-add': '➕ إضافة', 'btn-random': '🎲 عشوائي', 'btn-clear': '🗑️ مسح',
-      'btn-create': '🔐 إنشاء', 'password-title': '🔑 كلمة المرور (اسحب)', 'password-placeholder': 'اضغط "إنشاء"',
-      'saved-title': '📦 المحفوظة', 'btn-save': '💾 حفظ', 'btn-export': '📤 تصدير', 'btn-import': '📥 استيراد', 'btn-copy': '📋 نسخ', 'btn-reset': '🔄 إعادة',
-      'toast-saved': '💾 تم الحفظ', 'toast-copied': '🔐 تم النسخ', 'toast-cleared': '🧹 تم مسح الحافظة', 'toast-random': '🎲 تم التعبئة عشوائيًا',
-      'toast-created': '✅ جاهز', 'toast-reset': '🔄 تم إعادة', 'toast-exported': '📤 تم التصدير', 'toast-imported': '📥 تم الاستيراد',
-      'toast-deleted': '🗑️ تم الحذف', 'toast-error': '❌ خطأ', 'toast-empty': '❌ املأ دائرة', 'toast-clipboard': '❌ خطأ في الحافظة',
-      'confirm-delete': 'حذف كلمة المرور؟ لا يمكن التراجع.', 'dot-hint': 'اضغط للإدخال'
+      'app-title':'كلمات مرور مضادة للذكاء الاصطناعي','app-subtitle':'آمن. محلي. 2026.','btn-howto':'📖 دليل','select-language':'اختر اللغة',
+      'page2-title':'التعليمات','security-title':'مبادئ الأمان','howto-title':'خطوات',
+      'step1':'اضغط على دائرة → تتحول لأحمر','step2':'اختر رمز','step3':'كرر لـ 8–32 دائرة','step4':'اضغط "إنشاء"','step5':'انسخ أو احفظ',
+      'btn-next-support':'➡️ دعم المشروع','support-title':'دعم المشروع','support-text1':'مجاني للأبد','support-text2':'الدعم التطوعي يحسّن الأمان.',
+      'btn-copy-phone':'📋 نسخ','projects-title':'مشاريع أخرى','btn-next-generator':'➡️ مولد الكلمات',
+      'gen-title':'إنشاء كلمة مرور','gen-count':'دوائر:','btn-add':'+','btn-random':'🎲',
+      'mode-safe':'🛡️ بنكي','mode-full':'🔓 الكل','btn-clear':'🗑️',
+      'btn-create':'🔐 إنشاء','password-title':'النتيجة','password-placeholder':'اضغط الزر',
+      'saved-title':'📦 المحفوظة','btn-save':'💾 حفظ','btn-export':'📤','btn-import':'📥','btn-copy':'📋 نسخ','btn-reset':'🔄',
+      'toast-saved':'💾 تم الحفظ','toast-copied':'🔐 تم النسخ','toast-cleared':'🧹 تم المسح','toast-random':'🎲 تم التعبئة',
+      'toast-created':'✅ جاهز','toast-reset':'🔄 تم إعادة','toast-exported':'📤 تم التصدير','toast-imported':'📥 تم الاستيراد',
+      'toast-deleted':'🗑️ تم الحذف','toast-error':'❌ خطأ','toast-empty':'❌ املأ دائرة','toast-clipboard':'❌ خطأ الحافظة',
+      'confirm-delete':'حذف كلمة المرور؟ لا يمكن التراجع.'
     },
     pt: {
-      'app-title': '🔐 Senhas Anti IA', 'app-subtitle': 'Gerador seguro offline', 'btn-howto': '📖 Como usar', 'select-language': 'Selecionar idioma',
-      'page2-title': '⚡ INSTRUÇÕES', 'security-title': '🛡️ Princípios de segurança',
-      'badge-no-leaks': '🔒 0% rede', 'badge-aes': '🧠 AES-256', 'badge-virtual-kb': '⌨️ Teclado virtual', 'badge-special': '🔐 Caracteres especiais', 'badge-offline': '📴 Offline',
-      'howto-title': '📖 Criar senha',
-      'step1': 'Toque no ponto → fica vermelho', 'step2': 'Escolha símbolo (letras, números, @#$%)', 'step3': 'Repita para 8–32 pontos', 'step4': '"CRIAR" → arraste bolas', 'step5': 'Copie ou salve (criptografado)',
-      'btn-next-support': '➡️ APOIAR', 'support-title': '🤝 APOIAR PROJETO',
-      'support-text1': 'Grátis para sempre, sem anúncios.', 'support-text2': 'Apoio voluntário melhora segurança.',
-      'phone-label': '📱 DOAR POR TELEFONE:', 'btn-copy-phone': '📋 Copiar', 'copy-success': '✅ Instantâneo. Sem taxas.', 'thanks': '❤️ Obrigado!',
-      'projects-title': '🌟 OUTROS PROJETOS', 'btn-next-generator': '➡️ GERADOR',
-      'gen-title': '🔐 CRIAR SENHA', 'gen-count': 'Pontos:', 'btn-add': '➕ Adicionar', 'btn-random': '🎲 Aleatório', 'btn-clear': '🗑️ Limpar',
-      'btn-create': '🔐 CRIAR', 'password-title': '🔑 Senha (arraste)', 'password-placeholder': 'Toque "Criar"',
-      'saved-title': '📦 SALVAS', 'btn-save': '💾 Salvar', 'btn-export': '📤 Exportar', 'btn-import': '📥 Importar', 'btn-copy': '📋 COPIAR', 'btn-reset': '🔄 REINICIAR',
-      'toast-saved': '💾 Salva', 'toast-copied': '🔐 Copiada', 'toast-cleared': '🧹 Área de transferência limpa', 'toast-random': '🎲 Preenchido aleatoriamente',
-      'toast-created': '✅ Pronto', 'toast-reset': '🔄 Reiniciado', 'toast-exported': '📤 Exportado', 'toast-imported': '📥 Importado',
-      'toast-deleted': '🗑️ Excluída', 'toast-error': '❌ Erro', 'toast-empty': '❌ Preencha um ponto', 'toast-clipboard': '❌ Erro na área de transferência',
-      'confirm-delete': 'Excluir senha? Ação irreversível.', 'dot-hint': 'Toque para inserir'
+      'app-title':'Senhas Anti IA','app-subtitle':'Seguro. Local. 2026.','btn-howto':'📖 Guia','select-language':'IDIOMA',
+      'page2-title':'Instruções','security-title':'Segurança','howto-title':'Passos',
+      'step1':'Toque ponto → Vermelho','step2':'Escolha símbolo','step3':'Repita 8–32 vezes','step4':'Criar','step5':'Copiar',
+      'btn-next-support':'➡️ Apoiar','support-title':'Apoiar','support-text1':'Grátis sempre.','support-text2':'Sua ajuda conta.',
+      'btn-copy-phone':'📋 Copiar','projects-title':'Projetos','btn-next-generator':'➡️ Gerador',
+      'gen-title':'Criar Senha','gen-count':'Pontos:','btn-add':'+','btn-random':'🎲',
+      'mode-safe':'🛡️ Banco','mode-full':'🔓 Todos','btn-clear':'🗑️',
+      'btn-create':'🔐 Criar','password-title':'Resultado','password-placeholder':'Toque botão',
+      'saved-title':'📦 Salvos','btn-save':'💾 Salvar','btn-export':'📤','btn-import':'📥','btn-copy':'📋 Copiar','btn-reset':'🔄',
+      'toast-saved':'💾 Salvo','toast-copied':'🔐 Copiado','toast-cleared':'🧹 Limpo','toast-random':'🎲 Preenchido',
+      'toast-created':'✅ Pronto','toast-reset':'🔄 Reset','toast-exported':'📤 Exportado','toast-imported':'📥 Importado',
+      'toast-deleted':'🗑️ Excluído','toast-error':'❌ Erro','toast-empty':'❌ Preencha pontos','toast-clipboard':'❌ Erro buffer',
+      'confirm-delete':'Excluir? Irreversível.'
     },
     it: {
-      'app-title': '🔐 Password Anti IA', 'app-subtitle': 'Generatore sicuro offline', 'btn-howto': '📖 Come usare', 'select-language': 'Seleziona lingua',
-      'page2-title': '⚡ ISTRUZIONI', 'security-title': '🛡️ Principi di sicurezza',
-      'badge-no-leaks': '🔒 0% rete', 'badge-aes': '🧠 AES-256', 'badge-virtual-kb': '⌨️ Tastiera virtuale', 'badge-special': '🔐 Caratteri speciali', 'badge-offline': '📴 Offline',
-      'howto-title': '📖 Crea password',
-      'step1': 'Tocca un punto → diventa rosso', 'step2': 'Scegli simbolo (lettere, numeri, @#$%)', 'step3': 'Ripeti per 8–32 punti', 'step4': '"CREA" → trascina le sfere', 'step5': 'Copia o salva (criptato)',
-      'btn-next-support': '➡️ SUPPORTA', 'support-title': '🤝 SUPPORTA PROGETTO',
-      'support-text1': 'Gratis per sempre, senza pubblicità.', 'support-text2': 'Il supporto volontario migliora la sicurezza.',
-      'phone-label': '📱 DONA VIA TELEFONO:', 'btn-copy-phone': '📋 Copia', 'copy-success': '✅ Istantaneo. Senza commissioni.', 'thanks': '❤️ Grazie!',
-      'projects-title': '🌟 ALTRI PROGETTI', 'btn-next-generator': '➡️ GENERATORE',
-      'gen-title': '🔐 CREA PASSWORD', 'gen-count': 'Punti:', 'btn-add': '➕ Aggiungi', 'btn-random': '🎲 Casuale', 'btn-clear': '🗑️ Cancella',
-      'btn-create': '🔐 CREA', 'password-title': '🔑 Password (trascina)', 'password-placeholder': 'Tocca "Crea"',
-      'saved-title': '📦 SALVATE', 'btn-save': '💾 Salva', 'btn-export': '📤 Esporta', 'btn-import': '📥 Importa', 'btn-copy': '📋 COPIA', 'btn-reset': '🔄 RESET',
-      'toast-saved': '💾 Salvata', 'toast-copied': '🔐 Copiata', 'toast-cleared': '🧹 Appunti svuotati', 'toast-random': '🎲 Riempito casualmente',
-      'toast-created': '✅ Pronto', 'toast-reset': '🔄 Reset', 'toast-exported': '📤 Esportato', 'toast-imported': '📥 Importato',
-      'toast-deleted': '🗑️ Eliminata', 'toast-error': '❌ Errore', 'toast-empty': '❌ Riempi un punto', 'toast-clipboard': '❌ Errore appunti',
-      'confirm-delete': 'Eliminare password? Azione irreversibile.', 'dot-hint': 'Tocca per inserire'
+      'app-title':'Password Anti IA','app-subtitle':'Sicuro. Locale. 2026.','btn-howto':'📖 Guida','select-language':'LINGUA',
+      'page2-title':'Istruzioni','security-title':'Sicurezza','howto-title':'Passi',
+      'step1':'Tocca punto → Rosso','step2':'Scegli simbolo','step3':'Ripeti 8–32 volte','step4':'Crea','step5':'Copia',
+      'btn-next-support':'➡️ Supporta','support-title':'Supporta','support-text1':'Gratis per sempre.','support-text2':'Il tuo aiuto conta.',
+      'btn-copy-phone':'📋 Copia','projects-title':'Progetti','btn-next-generator':'➡️ Generatore',
+      'gen-title':'Crea Password','gen-count':'Punti:','btn-add':'+','btn-random':'🎲',
+      'mode-safe':'🛡️ Banca','mode-full':'🔓 Tutti','btn-clear':'🗑️',
+      'btn-create':'🔐 Crea','password-title':'Risultato','password-placeholder':'Premi bottone',
+      'saved-title':'📦 Salvate','btn-save':'💾 Salva','btn-export':'📤','btn-import':'📥','btn-copy':'📋 Copia','btn-reset':'🔄',
+      'toast-saved':'💾 Salvata','toast-copied':'🔐 Copiata','toast-cleared':'🧹 Svuotato','toast-random':'🎲 Riempito',
+      'toast-created':'✅ Pronto','toast-reset':'🔄 Reset','toast-exported':'📤 Esportato','toast-imported':'📥 Importato',
+      'toast-deleted':'🗑️ Eliminata','toast-error':'❌ Errore','toast-empty':'❌ Riempi punti','toast-clipboard':'❌ Errore',
+      'confirm-delete':'Eliminare? Irreversibile.'
     },
     ja: {
-      'app-title': '🔐 反AIパスワード', 'app-subtitle': '安全なオフライン生成器', 'btn-howto': '📖 使い方', 'select-language': '言語を選択',
-      'page2-title': '⚡ 使い方', 'security-title': '🛡️ セキュリティ原則',
-      'badge-no-leaks': '🔒 通信なし', 'badge-aes': '🧠 AES-256暗号', 'badge-virtual-kb': '⌨️ 仮想キーボード', 'badge-special': '🔐 特殊文字', 'badge-offline': '📴 オフライン',
-      'howto-title': '📖 パスワード作成',
-      'step1': 'ドットをタップ → 赤くなる', 'step2': '記号を選択（文字、数字、@#$%）', 'step3': '8〜32個のドットで繰り返す', 'step4': '"作成" → ボールをドラッグ', 'step5': 'コピーまたは保存（暗号化）',
-      'btn-next-support': '➡️ 支援する', 'support-title': '🤝 プロジェクト支援',
-      'support-text1': '永久無料、広告なし。', 'support-text2': '任意の支援がセキュリティ向上に役立ちます。',
-      'phone-label': '📱 電話で寄付：', 'btn-copy-phone': '📋 コピー', 'copy-success': '✅ 即時。手数料なし。', 'thanks': '❤️ ありがとう！',
-      'projects-title': '🌟 其他プロジェクト', 'btn-next-generator': '➡️ 生成器',
-      'gen-title': '🔐 パスワード作成', 'gen-count': 'ドット：', 'btn-add': '➕ 追加', 'btn-random': '🎲 ランダム', 'btn-clear': '🗑️ クリア',
-      'btn-create': '🔐 作成', 'password-title': '🔑 パスワード（ドラッグ可）', 'password-placeholder': '"作成"をタップ',
-      'saved-title': '📦 保存済み', 'btn-save': '💾 保存', 'btn-export': '📤 出力', 'btn-import': '📥 入力', 'btn-copy': '📋 コピー', 'btn-reset': '🔄 リセット',
-      'toast-saved': '💾 保存済み', 'toast-copied': '🔐 コピー済み', 'toast-cleared': '🧹 クリップボード削除', 'toast-random': '🎲 ランダム充填',
-      'toast-created': '✅ 完了', 'toast-reset': '🔄 リセット', 'toast-exported': '📤 出力済み', 'toast-imported': '📥 入力済み',
-      'toast-deleted': '🗑️ 削除済み', 'toast-error': '❌ エラー', 'toast-empty': '❌ ドットを入力', 'toast-clipboard': '❌ クリップボードエラー',
-      'confirm-delete': 'パスワードを削除しますか？元に戻せません。', 'dot-hint': 'タップして入力'
+      'app-title':'反AIパスワード','app-subtitle':'安全. ローカル. 2026.','btn-howto':'📖 ガイド','select-language':'言語',
+      'page2-title':'説明','security-title':'セキュリティ','howto-title':'手順',
+      'step1':'ドットをタップ → 赤','step2':'記号を選択','step3':'8〜32回繰り返す','step4':'作成','step5':'コピー',
+      'btn-next-support':'➡️ サポート','support-title':'サポート','support-text1':'永遠無料','support-text2':'ご支援よろしくお願いします。',
+      'btn-copy-phone':'📋 コピー','projects-title':'他のプロジェクト','btn-next-generator':'➡️ 生成器',
+      'gen-title':'パスワード作成','gen-count':'ドット:','btn-add':'+','btn-random':'🎲',
+      'mode-safe':'🛡️ バンク','mode-full':'🔓 全て','btn-clear':'🗑️',
+      'btn-create':'🔐 作成','password-title':'結果','password-placeholder':'ボタンを押す',
+      'saved-title':'📦 保存済み','btn-save':'💾 保存','btn-export':'📤','btn-import':'📥','btn-copy':'📋 コピー','btn-reset':'🔄',
+      'toast-saved':'💾 保存済み','toast-copied':'🔐 コピー済み','toast-cleared':'🧹 クリア','toast-random':'🎲 ランダム',
+      'toast-created':'✅ 完了','toast-reset':'🔄 リセット','toast-exported':'📤 出力済み','toast-imported':'📥 入力済み',
+      'toast-deleted':'🗑️ 削除済み','toast-error':'❌ エラー','toast-empty':'❌ ドットを入力','toast-clipboard':'❌ エラー',
+      'confirm-delete':'削除しますか？元に戻せません。'
     }
   };
 
-  let currentLang = 'ru';
+  // ===== ПЕРЕМЕННЫЕ =====
+  let currentLang = 'ru', currentTheme = 'light', currentPool = '';
+  let genDots = 8, genChars = new Array(8).fill(''), curPwd = [], dragIdx = null, activeDot = null;
+  const MASTER_KEY = "anti-ai-local-secure-2026";
+  let saved = [], clipTimer = null;
+  const POOL_SAFE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+.";
+  const POOL_FULL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!@#$%^&*()_+-=[]{}|;:,.<>?/\\~";
 
-  function initLanguage() {
-    const saved = localStorage.getItem('anti-ai-lang');
-    if (saved && translations[saved]) { currentLang = saved; document.documentElement.setAttribute('data-lang', currentLang); }
-    applyTranslations();
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        currentLang = btn.dataset.lang;
-        document.documentElement.setAttribute('data-lang', currentLang);
-        localStorage.setItem('anti-ai-lang', currentLang);
-        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        applyTranslations();
-        hapticFeedback(10);
-      });
-    });
+  // ===== ФУНКЦИИ =====
+  function tr(k) { return trs[currentLang]?.[k] || trs['ru'][k] || k; }
+  function vib(ms) { if('vibrate' in navigator) navigator.vibrate(ms); }
+  function toast(k) {
+    const t = document.getElementById('toastMsg'); 
+    t.textContent = tr(k); 
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+  function showPage(id) { 
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); 
+    document.getElementById(id).classList.add('active'); 
   }
 
-  function applyTranslations() {
-    const t = translations[currentLang] || translations.ru;
-    document.querySelectorAll('[data-i18n]').forEach(el => {
+  function initLang() {
+    const s = localStorage.getItem('anti-ai-lang'); 
+    if(s && trs[s]) { currentLang = s; document.documentElement.dataset.lang = s; }
+    applyLang();
+    document.querySelectorAll('.lang-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === currentLang);
+      b.onclick = () => {
+        currentLang = b.dataset.lang; 
+        localStorage.setItem('anti-ai-lang', b.dataset.lang);
+        document.documentElement.dataset.lang = currentLang; 
+        applyLang();
+        document.querySelectorAll('.lang-btn').forEach(x => x.classList.remove('active')); 
+        b.classList.add('active');
+        buildKeys(); 
+        vib(10);
+      };
+    });
+  }
+  
+  function applyLang() {
+    document.querySelectorAll('[data-i18n]').forEach(el => { 
       const key = el.dataset.i18n;
-      if (t[key]) {
-        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = t[key];
-        else el.textContent = t[key];
-      }
+      if(tr(key)) el.textContent = tr(key); 
     });
-    document.querySelectorAll('.dot').forEach(dot => { dot.dataset.hint = t['dot-hint'] || 'Tap'; });
-    document.title = t['app-title'] || document.title;
+    document.title = tr('app-title');
   }
-
-  function tr(key) { return translations[currentLang]?.[key] || translations.ru[key] || key; }
-
-  // ===== ТЁМНАЯ ТЕМА =====
+  
   function initTheme() {
-    const saved = localStorage.getItem('anti-ai-theme');
-    if (saved) document.documentElement.setAttribute('data-theme', saved);
-    document.querySelectorAll('.theme-toggle').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('anti-ai-theme', next);
-        hapticFeedback(10);
-      });
+    const s = localStorage.getItem('anti-ai-theme'); 
+    if(s) { currentTheme = s; document.documentElement.dataset.theme = s; }
+    document.querySelectorAll('.theme-toggle').forEach(b => {
+      b.onclick = () => {
+        currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = currentTheme; 
+        localStorage.setItem('anti-ai-theme', currentTheme); 
+        vib(10);
+      };
     });
   }
-
-  // ===== ВИБРАЦИЯ =====
-  function hapticFeedback(ms = 20) { if ('vibrate' in navigator) navigator.vibrate(ms); }
-
-  // ===== ЗАСТАВКА =====
-  const loadingScreen = document.getElementById('loadingScreen');
-  const loadingImage = document.getElementById('loadingImage');
-  const loadingVideo = document.getElementById('loadingVideo');
-  const soundBtn = document.getElementById('soundBtn');
-  let loadingDone = false, loadingStarted = false, videoPlayed = false;
-
-  function finishLoading() {
-    if (loadingDone) return; loadingDone = true; loadingVideo.pause();
-    loadingScreen.classList.add('hidden');
-    setTimeout(() => { loadingScreen.style.display = 'none'; document.getElementById('page1').classList.add('active'); }, 500);
+  
+  function buildKeys() {
+    const row = document.getElementById('keyboardRow'); 
+    if(!row) return; 
+    row.innerHTML = '';
+    const chars = currentPool.split('').sort(() => Math.random() - 0.5);
+    chars.forEach(ch => {
+      const btn = document.createElement('button'); 
+      btn.className = 'key'; 
+      btn.textContent = ch;
+      btn.onclick = () => { addSym(ch); vib(10); }; 
+      row.appendChild(btn);
+    });
   }
-  function startLoading() {
-    if (loadingDone || loadingStarted) return; loadingStarted = true;
-    loadingImage.style.display = 'block'; loadingVideo.style.display = 'none';
-    setTimeout(() => {
-      if (loadingDone) return;
-      loadingImage.style.display = 'none'; loadingVideo.style.display = 'block';
-      loadingVideo.muted = false;
-      if (!videoPlayed) { loadingVideo.currentTime = 0; videoPlayed = true; }
-      loadingVideo.play().catch(e => console.warn('Video:', e));
-    }, 2000);
-    setTimeout(finishLoading, 5000);
+  
+  function addSym(ch) { 
+    if(!currentPool.includes(ch)) return; 
+    if(activeDot !== null) { 
+      genChars[activeDot] = ch; 
+      drawDots(); 
+      activeDot = null; 
+      vib(15); 
+    } 
   }
-  soundBtn.addEventListener('click', e => {
-    e.stopPropagation(); if (loadingDone) return;
-    if (loadingVideo) { loadingVideo.muted = !loadingVideo.muted; soundBtn.textContent = loadingVideo.muted ? '🔇' : '🔊'; }
-    setTimeout(() => { if (soundBtn) soundBtn.style.display = 'none'; }, 3000);
-  });
-  setTimeout(() => { if (!loadingDone && !loadingStarted) startLoading(); }, 100);
-
-  // ===== ЯДРО ПРИЛОЖЕНИЯ =====
-  let genDots = 8, genChars = new Array(8).fill(''), currentPasswordChars = [], dragSrcIndex = null, activeDotIndex = null;
-  const MASTER_PASSWORD = "anti-ai-local-secure-2026";
-  let savedPasswords = [], clipboardTimeout = null;
-
-  function showToast(msgKey) {
-    const msg = translations[currentLang]?.[msgKey] || translations.ru[msgKey] || msgKey;
-    let toast = document.getElementById('toastMsg');
-    if (!toast) { toast = document.createElement('div'); toast.id = 'toastMsg'; toast.className = 'toast'; document.body.appendChild(toast); }
-    toast.textContent = msg; toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2000);
+  
+  function drawDots() {
+    const c = document.getElementById('generatorGrid'); 
+    if(!c) return; 
+    c.innerHTML = '';
+    for(let i = 0; i < genDots; i++) {
+      const d = document.createElement('div'); 
+      d.className = 'dot' + (genChars[i] ? ' filled' : '') + (i === activeDot ? ' selected' : '');
+      d.innerHTML = `<span>${genChars[i] || ''}</span>`;
+      d.onclick = () => { 
+        if(!genChars[i]) { 
+          document.querySelectorAll('.dot.selected').forEach(x => {
+            x.classList.remove('selected'); 
+            if(!genChars[parseInt(x.dataset.i)]) x.classList.remove('filled');
+          }); 
+          activeDot = i; 
+          d.classList.add('selected'); 
+          d.classList.add('filled'); 
+          vib(10); 
+        } 
+      };
+      d.dataset.i = i; 
+      c.appendChild(d);
+    }
+    const gc = document.getElementById('genCount'); 
+    if(gc) gc.textContent = genDots;
   }
-
-  async function encryptData(text, password) {
-    const encoder = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveKey"]);
-    const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: encoder.encode("anti-ai-salt"), iterations: 100000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoder.encode(text));
-    return btoa(String.fromCharCode(...new Uint8Array(iv))) + ":" + btoa(String.fromCharCode(...new Uint8Array(encrypted)));
+  
+  function create() {
+    if(!genChars.filter(c => c).length) { toast('toast-empty'); return; }
+    curPwd = []; 
+    for(let i = 0; i < genDots; i++) {
+      curPwd.push(genChars[i] || currentPool[Math.floor(Math.random() * currentPool.length)]);
+    }
+    drawPwd(); 
+    vib([30,20,30]); 
+    toast('toast-created');
   }
-  async function decryptData(encryptedData, password) {
-    const [ivBase64, dataBase64] = encryptedData.split(":");
-    const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
-    const encrypted = Uint8Array.from(atob(dataBase64), c => c.charCodeAt(0));
-    const encoder = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveKey"]);
-    const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: encoder.encode("anti-ai-salt"), iterations: 100000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
-    const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, encrypted);
-    return new TextDecoder().decode(decrypted);
+  
+  function drawPwd() {
+    const c = document.getElementById('passwordCharsContainer'); 
+    if(!c) return; 
+    c.innerHTML = '';
+    if(!curPwd.length) { 
+      c.innerHTML = `<span style="color: var(--text-muted);">${tr('password-placeholder')}</span>`; 
+      updStr(''); 
+      return; 
+    }
+    const p = curPwd.join(''); 
+    updStr(p);
+    curPwd.forEach((ch, i) => {
+      const b = document.createElement('div'); 
+      b.className = 'ball'; 
+      b.textContent = ch; 
+      b.draggable = true;
+      b.ondragstart = (e) => { dragIdx = i; e.dataTransfer.effectAllowed = 'move'; };
+      b.ondragover = (e) => e.preventDefault();
+      b.ondrop = (e) => { 
+        e.preventDefault(); 
+        const t = parseInt(e.target.dataset.idx); 
+        if(dragIdx !== null && dragIdx !== t) { 
+          const tmp = curPwd[dragIdx]; 
+          curPwd[dragIdx] = curPwd[t]; 
+          curPwd[t] = tmp; 
+          drawPwd(); 
+        } 
+        dragIdx = null; 
+      };
+      b.dataset.idx = i; 
+      c.appendChild(b);
+    });
   }
-  async function savePasswordToStorage(password) {
+  
+  function updStr(p) {
+    const f = document.getElementById('strengthFill'); 
+    if(!f) return; 
+    let s = 0;
+    if(p.length >= 12) s += 25; 
+    if(p.length >= 8) s += 15; 
+    if(/[A-Z]/.test(p)) s += 20; 
+    if(/[a-z]/.test(p)) s += 20; 
+    if(/[0-9]/.test(p)) s += 20; 
+    if(/[^A-Za-z0-9]/.test(p)) s += 15;
+    f.className = 'strength-fill ' + (s >= 80 ? 'strong' : s >= 60 ? 'good' : 'weak');
+  }
+  
+  async function copyPwd() {
+    if(!curPwd.length) { toast('toast-empty'); return; }
     try {
-      const encrypted = await encryptData(password, MASTER_PASSWORD);
-      savedPasswords.push(encrypted);
-      localStorage.setItem("anti_ai_encrypted_passwords", JSON.stringify(savedPasswords));
-      renderSavedPasswords(); showToast('toast-saved');
-    } catch { showToast('toast-error'); }
+      await navigator.clipboard.writeText(curPwd.join(''));
+      toast('toast-copied'); 
+      vib([20,30,20]);
+      if(clipTimer) clearTimeout(clipTimer);
+      clipTimer = setTimeout(async () => {
+        try { 
+          await navigator.clipboard.writeText(''); 
+          toast('toast-cleared'); 
+        } catch(e) { 
+          toast('toast-clipboard'); 
+        }
+      }, 30000);
+    } catch(err) {
+      // Fallback: показываем текст для ручного копирования
+      const fallbackMsg = curPwd.join('');
+      alert(tr('toast-clipboard') + '\n\n' + fallbackMsg);
+      toast('toast-clipboard');
+    }
   }
-  async function loadSavedPasswords() {
-    try { const stored = localStorage.getItem("anti_ai_encrypted_passwords"); if (stored) savedPasswords = JSON.parse(stored); renderSavedPasswords(); } catch { savedPasswords = []; }
+  
+  async function savePwd() {
+    if(!curPwd.length) { toast('toast-empty'); return; }
+    try { 
+      const enc = await cryptoSub('enc', curPwd.join(''), MASTER_KEY); 
+      saved.push(enc); 
+      localStorage.setItem("saved", JSON.stringify(saved)); 
+      renderSaved(); 
+      toast('toast-saved'); 
+    } catch(e) { 
+      toast('toast-error'); 
+    }
   }
-  async function renderSavedPasswords() {
-    const container = document.getElementById('savedList'); if (!container) return; container.innerHTML = '';
-    for (let i = 0; i < savedPasswords.length; i++) {
-      const div = document.createElement('div'); div.className = 'saved-item';
+  
+  async function loadSaved() {
+    try { 
+      const s = localStorage.getItem("saved"); 
+      if(s) saved = JSON.parse(s); 
+      renderSaved(); 
+    } catch(e) { 
+      saved = []; 
+    }
+  }
+  
+  async function renderSaved() {
+    const c = document.getElementById('savedList'); 
+    if(!c) return; 
+    c.innerHTML = '';
+    for(let i = 0; i < saved.length; i++) {
+      const d = document.createElement('div'); 
+      d.className = 'saved-item';
       try {
-        const decrypted = await decryptData(savedPasswords[i], MASTER_PASSWORD);
-        const span = document.createElement('span'); span.textContent = `🔐 ${decrypted}`; div.appendChild(span);
-        const showBtn = document.createElement('button'); showBtn.className = 'saved-btn'; showBtn.textContent = '📋'; showBtn.dataset.show = i; div.appendChild(showBtn);
-        const delBtn = document.createElement('button'); delBtn.className = 'saved-btn delete'; delBtn.textContent = '🗑️'; delBtn.dataset.delete = i; div.appendChild(delBtn);
-      } catch { div.innerHTML = `<span>🔒</span><button class="saved-btn" data-show="${i}">🔓</button><button class="saved-btn delete" data-delete="${i}">🗑️</button>`; }
-      container.appendChild(div);
+        const dec = await cryptoSub('dec', saved[i], MASTER_KEY);
+        d.innerHTML = `<span>🔐 ${dec}</span><div class="saved-actions"><button class="act-btn act-copy" data-i="${i}">📋</button><button class="act-btn act-del" data-i="${i}">🗑️</button></div>`;
+      } catch(e) { 
+        d.innerHTML = `<span>🔒</span><div class="saved-actions"><button class="act-btn act-copy" data-i="${i}">🔓</button><button class="act-btn act-del" data-i="${i}">🗑️</button></div>`; 
+      }
+      c.appendChild(d);
     }
-    document.querySelectorAll('[data-show]').forEach(btn => btn.addEventListener('click', async () => { try { const d = await decryptData(savedPasswords[parseInt(btn.dataset.show)], MASTER_PASSWORD); await navigator.clipboard.writeText(d); showToast('toast-copied'); } catch { showToast('toast-error'); } }));
-    document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => { if (!confirm(translations[currentLang]?.['confirm-delete'] || translations.ru['confirm-delete'])) return; savedPasswords.splice(parseInt(btn.dataset.delete), 1); localStorage.setItem("anti_ai_encrypted_passwords", JSON.stringify(savedPasswords)); renderSavedPasswords(); showToast('toast-deleted'); }));
+    document.querySelectorAll('.act-copy').forEach(b => {
+      b.onclick = async () => { 
+        try {
+          const dec = await cryptoSub('dec', saved[b.dataset.i], MASTER_KEY); 
+          await navigator.clipboard.writeText(dec); 
+          toast('toast-copied'); 
+        } catch(e) { 
+          toast('toast-error'); 
+        }
+      };
+    });
+    document.querySelectorAll('.act-del').forEach(b => {
+      b.onclick = async () => { 
+        if(confirm(tr('confirm-delete'))) { 
+          saved.splice(b.dataset.i, 1); 
+          localStorage.setItem("saved", JSON.stringify(saved)); 
+          renderSaved(); 
+          toast('toast-deleted'); 
+        } 
+      };
+    });
   }
-
-  const ALLOWED_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!@#$%^&*()_+-=[]{}|;:,.<>?";
-  function addSymbolToActive(symbol) { if (!ALLOWED_CHARS.includes(symbol)) return; if (activeDotIndex !== null) { genChars[activeDotIndex] = symbol; renderGenerator(); activeDotIndex = null; hapticFeedback(15); } }
-  function initVirtualKeyboard() {
-    const chars = ALLOWED_CHARS.split('').sort(() => Math.random() - 0.5), row = document.getElementById('keyboardRow'); row.innerHTML = '';
-    chars.forEach(ch => { const btn = document.createElement('button'); btn.className = 'key-btn'; btn.textContent = ch; btn.addEventListener('click', () => { hapticFeedback(10); addSymbolToActive(ch); }); row.appendChild(btn); });
-    document.querySelector('[data-key="clear"]')?.addEventListener('click', () => { genChars = new Array(genDots).fill(''); renderGenerator(); activeDotIndex = null; hapticFeedback(30); showToast('toast-reset'); });
-  }
-  function fillWithAI(chars, total) { const pool = ALLOWED_CHARS; let result = []; for (let i = 0; i < total; i++) result.push(chars[i] || pool[Math.floor(Math.random() * pool.length)]); return result; }
-  function calculatePasswordStrength(password) { let score = 0; if (password.length >= 12) score += 25; else if (password.length >= 8) score += 15; if (/[A-Z]/.test(password)) score += 20; if (/[a-z]/.test(password)) score += 20; if (/[0-9]/.test(password)) score += 20; if (/[^A-Za-z0-9]/.test(password)) score += 15; return Math.min(100, score); }
-  function renderGenerator() {
-    const container = document.getElementById('generatorGrid'); container.innerHTML = '';
-    for (let i = 0; i < genDots; i++) {
-      const dot = document.createElement('div'); let classes = 'dot';
-      if (genChars[i] || i === activeDotIndex) classes += ' filled'; if (i === activeDotIndex) classes += ' selected';
-      dot.className = classes; dot.dataset.index = i; dot.setAttribute('role', 'button'); dot.setAttribute('tabindex', '0');
-      dot.setAttribute('aria-label', genChars[i] ? `Symbol ${genChars[i]}` : 'Empty slot');
-      const span = document.createElement('span'); span.setAttribute('aria-hidden', 'true'); span.textContent = genChars[i] || ''; dot.appendChild(span);
-      dot.addEventListener('click', (e) => { e.stopPropagation(); if (genChars[i]) return;
-        document.querySelectorAll('.dot.selected').forEach(d => { d.classList.remove('selected'); if (!genChars[parseInt(d.dataset.index)]) d.classList.remove('filled'); });
-        activeDotIndex = i; dot.classList.add('selected'); dot.classList.add('filled'); hapticFeedback(10);
-      });
-      dot.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dot.click(); } });
-      container.appendChild(dot);
-    }
-    document.getElementById('genCount').textContent = genDots;
-  }
-  function renderPasswordWindow() {
-    const container = document.getElementById('passwordCharsContainer'); container.innerHTML = '';
-    if (!currentPasswordChars.length) { container.innerHTML = `<div style="color: var(--text-muted); text-align: center; width: 100%;">${tr('password-placeholder')}</div>`; updateStrengthIndicator(''); return; }
-    const pwd = currentPasswordChars.join(''); updateStrengthIndicator(pwd);
-    for (let i = 0; i < currentPasswordChars.length; i++) {
-      const ball = document.createElement('div'); ball.className = 'char-ball'; ball.textContent = currentPasswordChars[i];
-      ball.dataset.index = i; ball.draggable = true;
-      ball.addEventListener('dragstart', (e) => { dragSrcIndex = parseInt(e.target.dataset.index); e.dataTransfer.effectAllowed = 'move'; });
-      ball.addEventListener('dragover', (e) => e.preventDefault());
-      ball.addEventListener('drop', (e) => { e.preventDefault(); const ti = parseInt(e.target.dataset.index); if (dragSrcIndex !== null && dragSrcIndex !== ti) { const t = currentPasswordChars[dragSrcIndex]; currentPasswordChars[dragSrcIndex] = currentPasswordChars[ti]; currentPasswordChars[ti] = t; renderPasswordWindow(); } dragSrcIndex = null; });
-      container.appendChild(ball);
+  
+  async function cryptoSub(mode, txt, pwd) {
+    const enc = new TextEncoder(); 
+    const dec = new TextDecoder();
+    const km = await crypto.subtle.importKey("raw", enc.encode(pwd), "PBKDF2", false, ["deriveKey"]);
+    const k = await crypto.subtle.deriveKey({name:"PBKDF2", salt:enc.encode("salt"), iterations:100000, hash:"SHA-256"}, km, {name:"AES-GCM", length:256}, true, ["encrypt","decrypt"]);
+    if(mode === 'enc') {
+      const iv = crypto.getRandomValues(new Uint8Array(12)); 
+      const res = await crypto.subtle.encrypt({name:"AES-GCM", iv}, k, enc.encode(txt));
+      return btoa(String.fromCharCode(...new Uint8Array(iv))) + ":" + btoa(String.fromCharCode(...new Uint8Array(res)));
+    } else {
+      const [iv64, d64] = txt.split(":"); 
+      const iv = Uint8Array.from(atob(iv64), c => c.charCodeAt(0)); 
+      const d = Uint8Array.from(atob(d64), c => c.charCodeAt(0));
+      return dec.decode(await crypto.subtle.decrypt({name:"AES-GCM", iv}, k, d));
     }
   }
-  function updateStrengthIndicator(password) { const fill = document.getElementById('strengthFill'); if (!fill) return; const s = calculatePasswordStrength(password); fill.className = 'strength-fill ' + (s >= 80 ? 'strong' : s >= 60 ? 'good' : 'weak'); }
-  function randomFill() { const pool = ALLOWED_CHARS; for (let i = 0; i < genDots; i++) genChars[i] = pool[Math.floor(Math.random() * pool.length)]; renderGenerator(); activeDotIndex = null; hapticFeedback(50); showToast('toast-random'); }
-  function createPassword() { const filled = genChars.filter(ch => ch).length; if (filled === 0) { showToast('toast-empty'); return; } currentPasswordChars = fillWithAI(genChars, genDots); renderPasswordWindow(); hapticFeedback([30,20,30]); showToast('toast-created'); }
-  function resetGenerator() { genChars = new Array(genDots).fill(''); renderGenerator(); currentPasswordChars = []; renderPasswordWindow(); activeDotIndex = null; hapticFeedback(30); showToast('toast-reset'); }
-  async function copyPassword() {
-    if (!currentPasswordChars.length) { showToast('toast-empty'); return; }
-    const pwd = currentPasswordChars.join('');
-    try {
-      await navigator.clipboard.writeText(pwd); showToast('toast-copied'); hapticFeedback([20,30,20]);
-      if (clipboardTimeout) clearTimeout(clipboardTimeout);
-      clipboardTimeout = setTimeout(async () => { try { await navigator.clipboard.writeText(''); showToast('toast-cleared'); } catch { showToast('toast-clipboard'); } }, 30000);
-    } catch { showToast('toast-clipboard'); }
+  
+  function initZastavka() {
+    const vid = document.getElementById('loadingVideo'), img = document.getElementById('loadingImage');
+    let played = false;
+    setTimeout(() => {
+      if(img) img.style.display = 'none'; 
+      if(vid) { 
+        vid.style.display = 'block'; 
+        vid.muted = false; 
+        if(!played){ vid.currentTime = 0; played = true; } 
+        vid.play().catch(() => {}); 
+      }
+    }, 2000);
+    setTimeout(() => { 
+      if(vid) vid.pause(); 
+      const ls = document.getElementById('loadingScreen'); 
+      if(ls){ ls.classList.add('hidden'); setTimeout(() => ls.style.display = 'none', 500); } 
+    }, 5000);
+    const sBtn = document.getElementById('soundBtn');
+    if(sBtn) sBtn.onclick = (e) => { 
+      e.stopPropagation(); 
+      if(vid){ vid.muted = !vid.muted; e.target.textContent = vid.muted ? '🔇' : '🔊'; } 
+      setTimeout(() => e.target.style.display = 'none', 3000); 
+    };
   }
-  async function saveCurrentPassword() { if (!currentPasswordChars.length) { showToast('toast-empty'); return; } await savePasswordToStorage(currentPasswordChars.join('')); }
 
-  document.getElementById('exportBtn')?.addEventListener('click', () => { try { const blob = new Blob([JSON.stringify(savedPasswords, null, 2)], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `anti-ai-passwords-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url); hapticFeedback(20); showToast('toast-exported'); } catch { showToast('toast-error'); } });
-  document.getElementById('importBtn')?.addEventListener('click', () => { const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = async (e) => { const file = e.target.files[0]; if (!file) return; try { const text = await file.text(); const imported = JSON.parse(text); if (!Array.isArray(imported)) throw new Error('Invalid'); savedPasswords = [...savedPasswords, ...imported]; localStorage.setItem("anti_ai_encrypted_passwords", JSON.stringify(savedPasswords)); renderSavedPasswords(); hapticFeedback(20); showToast('toast-imported'); } catch { showToast('toast-error'); } }; input.click(); });
+  // ===== ИНИЦИАЛИЗАЦИЯ =====
+  currentPool = POOL_SAFE;
+  initLang(); 
+  initTheme(); 
+  drawDots(); 
+  buildKeys(); 
+  loadSaved(); 
+  initZastavka();
 
-  const pages = { p1: document.getElementById('page1'), p2: document.getElementById('page2'), p3: document.getElementById('page3'), p4: document.getElementById('page4') };
-  function showPage(id) { Object.values(pages).forEach(p => p.classList.remove('active')); pages[id].classList.add('active'); }
-
-  async function init() {
-    initTheme(); initLanguage();
-    renderGenerator(); renderPasswordWindow(); initVirtualKeyboard(); await loadSavedPasswords();
-    document.getElementById('howToUseBtn').onclick = () => { hapticFeedback(10); showPage('p2'); };
-    document.getElementById('learnNextBtn').onclick = () => { hapticFeedback(10); showPage('p3'); };
-    document.getElementById('supportNextBtn').onclick = () => { hapticFeedback(10); showPage('p4'); };
-    document.getElementById('backToPage1').onclick = () => { hapticFeedback(10); showPage('p1'); };
-    document.getElementById('backToPage2').onclick = () => { hapticFeedback(10); showPage('p2'); };
-    document.getElementById('backToPage3').onclick = () => { hapticFeedback(10); showPage('p3'); };
-    document.getElementById('addGenBtn').onclick = () => { if (genDots < 32) { genDots++; genChars.push(''); renderGenerator(); currentPasswordChars = []; renderPasswordWindow(); hapticFeedback(10); } };
-    document.getElementById('randomFillBtn').onclick = randomFill;
-    document.getElementById('createPwdBtn').onclick = createPassword;
-    document.getElementById('resetGenBtn').onclick = resetGenerator;
-    document.getElementById('copyFinalBtn').onclick = copyPassword;
-    document.getElementById('saveCurrentPwdBtn').onclick = saveCurrentPassword;
-    document.getElementById('copyPhoneBtn').onclick = () => { navigator.clipboard.writeText('8-920-227-56-76').then(() => { showToast('toast-copied'); hapticFeedback(20); }); };
-  }
-  init();
+  // ===== ОБРАБОТЧИКИ =====
+  document.getElementById('howToUseBtn').onclick = () => showPage('page2');
+  document.getElementById('learnNextBtn').onclick = () => showPage('page3');
+  document.getElementById('supportNextBtn').onclick = () => showPage('page4');
+  document.getElementById('backToPage1').onclick = () => showPage('page1');
+  document.getElementById('backToPage2').onclick = () => showPage('page2');
+  document.getElementById('backToPage3').onclick = () => showPage('page3');
+  
+  document.getElementById('addGenBtn').onclick = () => { 
+    if(genDots < 32) { 
+      genDots++; 
+      genChars.push(''); 
+      drawDots(); 
+      curPwd = []; 
+      drawPwd(); 
+      vib(10); 
+    } 
+  };
+  
+  document.getElementById('randomFillBtn').onclick = () => { 
+    for(let i = 0; i < genDots; i++) genChars[i] = currentPool[Math.floor(Math.random() * currentPool.length)]; 
+    drawDots(); 
+    activeDot = null; 
+    vib(50); 
+    toast('toast-random'); 
+  };
+  
+  document.getElementById('createPwdBtn').onclick = create;
+  
+  document.getElementById('resetGenBtn').onclick = () => { 
+    genChars = new Array(genDots).fill(''); 
+    drawDots(); 
+    curPwd = []; 
+    drawPwd(); 
+    activeDot = null; 
+    vib(30); 
+    toast('toast-reset'); 
+  };
+  
+  document.getElementById('copyFinalBtn').onclick = copyPwd;
+  document.getElementById('saveCurrentPwdBtn').onclick = savePwd;
+  
+  document.getElementById('copyPhoneBtn').onclick = () => { 
+    navigator.clipboard.writeText('8-920-227-56-76').then(() => { toast('toast-copied'); vib(20); }); 
+  };
+  
+  // Кнопка очистки
+  document.getElementById('clearAllBtn').onclick = () => { 
+    genChars = new Array(genDots).fill(''); 
+    drawDots(); 
+    activeDot = null; 
+    vib(30); 
+    toast('toast-reset'); 
+  };
+  
+  // Переключение режимов
+  document.querySelectorAll('.mode-opt').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.mode-opt').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentPool = btn.dataset.mode === 'safe' ? POOL_SAFE : POOL_FULL;
+      buildKeys(); 
+      vib(10);
+    };
+  });
+  
+  document.getElementById('exportBtn').onclick = () => { 
+    const blob = new Blob([JSON.stringify(saved, null, 2)], {type:'application/json'}); 
+    const u = URL.createObjectURL(blob); 
+    const a = document.createElement('a'); 
+    a.href = u; 
+    a.download = `backup-${Date.now()}.json`; 
+    a.click(); 
+    toast('toast-exported'); 
+  };
+  
+  document.getElementById('importBtn').onclick = () => { 
+    const i = document.createElement('input'); 
+    i.type = 'file'; 
+    i.accept = '.json'; 
+    i.onchange = async (e) => { 
+      try {
+        const t = await e.target.files[0].text(); 
+        const imp = JSON.parse(t); 
+        saved = [...saved, ...imp]; 
+        localStorage.setItem("saved", JSON.stringify(saved)); 
+        renderSaved(); 
+        toast('toast-imported');
+      } catch(e) { 
+        toast('toast-error'); 
+      }
+    }; 
+    i.click(); 
+  };
+});
 </script>
 </body>
 </html>

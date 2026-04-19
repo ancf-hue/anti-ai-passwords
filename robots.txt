@@ -1,0 +1,6 @@
+# Разрешаем всем поисковым роботам
+User-agent: *
+Allow: /
+
+# Указываем путь к карте сайта
+Sitemap: https://anti-ai-passwords.vercel.app/sitemap.xml

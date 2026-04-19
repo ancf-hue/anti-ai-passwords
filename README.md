@@ -1,4 +1,5 @@
 <img width="952" height="955" alt="P6IEhjQ" src="https://github.com/user-attachments/assets/98f07e5d-7b9f-4dd3-9ea4-1c6ecf16d24a" />
+🔐 Secure offline password generator with AES-256 encryption. 10 languages: 🇷🇺 🇬🇧 🇪🇸 🇩🇪 🇫🇷 🇨🇳 🇸🇦 🇵🇹 🇮🇹 🇯🇵
 🔐 Анти ИИ Пароли
 Безопасный локальный генератор паролей — создавайте криптостойкие пароли без интернета, без утечек, без компромиссов.
 🌟 О проекте
